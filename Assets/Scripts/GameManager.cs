@@ -1,0 +1,34 @@
+using UnityEngine;
+
+/// <summary>
+/// Main game manager that handles global game settings.
+/// Auto-instantiates on game start and persists across scenes.
+/// </summary>
+public class GameManager : MonoBehaviour
+{
+    public static GameManager Instance { get; private set; }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize()
+    {
+        if (Instance == null)
+        {
+            var go = new GameObject("GameManager");
+            Instance = go.AddComponent<GameManager>();
+            DontDestroyOnLoad(go);
+        }
+    }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+        Application.targetFrameRate = 60;
+    }
+}
