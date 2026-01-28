@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="10000mm"
+   height="10000mm"
+   viewBox="0 0 10000 10000"
    version="1.1"
    id="svg1"
    inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
@@ -24,9 +24,9 @@
      inkscape:pagecheckerboard="1"
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
-     inkscape:zoom="0.76524271"
-     inkscape:cx="-529.24386"
-     inkscape:cy="476.97286"
+     inkscape:zoom="1.0822166"
+     inkscape:cx="725.3631"
+     inkscape:cy="99.795179"
      inkscape:window-width="3840"
      inkscape:window-height="2028"
      inkscape:window-x="-13"
@@ -62,7 +62,7 @@
        x="201.08139"
        y="-34.263542" /><g
        id="g3"
-       transform="translate(-36.217404,20.312864)"><rect
+       transform="matrix(4.8816245,0,0,4.8816245,-526.60818,-88.109299)"><rect
          style="opacity:1;fill:#a31da9;fill-opacity:1;stroke-width:0.529167;paint-order:markers stroke fill"
          id="rect1"
          width="52.441559"
@@ -81,7 +81,7 @@
          height="1.6855354"
          x="131.40163"
          y="27.932161" /></g><circle
-       style="fill:url(#radialGradient13);fill-opacity:1;stroke-width:0.529167;paint-order:markers stroke fill"
+       style="fill:url(#radialGradient13);stroke-width:0.529167;paint-order:markers stroke fill"
        id="circle10"
        cx="53.624134"
        cy="59.263123"

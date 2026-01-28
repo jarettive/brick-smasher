@@ -8,13 +8,16 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Ball : MonoBehaviour
 {
+    public const float MinVerticalVelocity = 0.5f;
+
     [SerializeField]
     private float speed = 10f;
 
     [SerializeField]
-    private float minVerticalVelocity = 2f;
+    private float rotationSpeedMultiplier = 50f;
 
     private Vector2 velocity;
+    private float angularVelocity;
     private CircleCollider2D circleCollider;
     private Rigidbody2D rb;
     private bool isLaunched;
@@ -60,6 +63,7 @@ public class Ball : MonoBehaviour
     {
         // MovePosition ensures proper collision detection for kinematic bodies
         rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
+        rb.MoveRotation(rb.rotation + angularVelocity * Time.fixedDeltaTime);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -67,29 +71,42 @@ public class Ball : MonoBehaviour
         if (!isLaunched)
             return;
 
-        // Get the contact normal for reflection
         Vector2 normal = collision.contacts[0].normal;
-        Bounce(normal);
-    }
+        Vector2 contactPoint = collision.contacts[0].point;
 
-    private void Bounce(Vector2 normal)
-    {
-        // Reflect velocity off the surface normal
-        velocity = Vector2.Reflect(velocity, normal);
+        // Let the surface define bounce behavior if it has one
+        Surface surface = collision.gameObject.GetComponent<Surface>();
+        if (surface != null)
+        {
+            velocity = surface.CalculateBounce(velocity, normal, contactPoint);
+        }
+        else
+        {
+            // Default bounce for objects without Surface component
+            velocity = Vector2.Reflect(velocity, normal);
+        }
+
+        // Apply rotation based on horizontal velocity change
+        ApplyBounceRotation(collision.relativeVelocity);
 
         EnsureMinimumVerticalVelocity();
-
-        // Maintain speed
         velocity = velocity.normalized * speed;
+    }
+
+    private void ApplyBounceRotation(Vector2 relativeVelocity)
+    {
+        // Angular velocity influenced by horizontal component of impact
+        angularVelocity = -relativeVelocity.x * rotationSpeedMultiplier;
     }
 
     private void EnsureMinimumVerticalVelocity()
     {
         // Prevent ball from going too horizontal (boring gameplay)
-        if (Mathf.Abs(velocity.y) < minVerticalVelocity)
+        if (Mathf.Abs(velocity.y) < MinVerticalVelocity)
         {
-            float sign = velocity.y >= 0 ? 1f : -1f;
-            velocity.y = minVerticalVelocity * sign;
+            // Use a small threshold to avoid sign flipping on near-zero values
+            float sign = velocity.y < -0.01f ? -1f : 1f;
+            velocity.y = MinVerticalVelocity * sign;
         }
     }
 }
