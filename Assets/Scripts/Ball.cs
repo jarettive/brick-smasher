@@ -8,7 +8,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Ball : MonoBehaviour
 {
-    public const float MinVerticalVelocity = 0.5f;
+    public const float MinVerticalVelocity = 0.75f;
 
     [SerializeField]
     private float speed = 10f;

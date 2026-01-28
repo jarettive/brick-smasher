@@ -107,7 +107,7 @@ public class Brick : MonoBehaviour
         if (ball == null)
             return;
 
-        float damage = ball.Velocity.magnitude * 2;
+        float damage = ball.Velocity.magnitude * 3.2f;
         ApplyDamage(damage, normal);
     }
 
@@ -123,7 +123,7 @@ public class Brick : MonoBehaviour
 
         // Knockback formula: (Percentage/10) + (Percentage * Damage)/20
         float knockbackForce = (percentage / 10f) + (percentage * damage) / 20f;
-        knockbackVelocity += direction.normalized * knockbackForce * .25f;
+        knockbackVelocity += direction.normalized * knockbackForce * .15f;
     }
 
     private void UpdatePercentageDisplay()
