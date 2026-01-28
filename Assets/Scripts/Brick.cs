@@ -37,6 +37,7 @@ public class Brick : MonoBehaviour
     private void Start()
     {
         originalPosition = transform.position;
+        UpdatePercentageDisplay();
     }
 
     private void FixedUpdate()
