@@ -11,12 +11,12 @@ TagManager:
   - 
   - Water
   - UI
-  - Balls
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Ball
+  - Paddle
+  - Brick
+  - BallWall
+  - BrickWall
+  - BlastZone
   - 
   - 
   - 
