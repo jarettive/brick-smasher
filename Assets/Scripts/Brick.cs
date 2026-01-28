@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Brick that takes percentage damage and gets knocked back when hit by the ball.
@@ -7,6 +8,7 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Image))]
 public class Brick : MonoBehaviour
 {
     [SerializeField]
@@ -21,6 +23,13 @@ public class Brick : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI percentageText;
 
+    private Image brickImage;
+
+    private static readonly Color LightYellow = new Color(1f, 1f, 0.5f);
+    private static readonly Color Orange = new Color(1f, 0.5f, 0f);
+    private static readonly Color DarkRed = new Color(0.5f, 0f, 0f);
+    private const float MaxPercentageForColor = 200f;
+
     private Rigidbody2D rb;
     private float percentage;
     private Vector2 knockbackVelocity;
@@ -32,6 +41,7 @@ public class Brick : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Kinematic;
+        brickImage = GetComponent<Image>();
     }
 
     private void Start()
@@ -133,5 +143,28 @@ public class Brick : MonoBehaviour
         {
             percentageText.text = Mathf.RoundToInt(percentage) + "%";
         }
+        UpdateColor();
+    }
+
+    private void UpdateColor()
+    {
+        if (brickImage == null)
+            return;
+
+        float t = Mathf.Clamp01(percentage / MaxPercentageForColor);
+
+        Color color;
+        if (t < 0.5f)
+        {
+            // Light yellow to orange (0% to 100%)
+            color = Color.Lerp(LightYellow, Orange, t * 2f);
+        }
+        else
+        {
+            // Orange to dark red (100% to 200%)
+            color = Color.Lerp(Orange, DarkRed, (t - 0.5f) * 2f);
+        }
+
+        brickImage.color = color;
     }
 }

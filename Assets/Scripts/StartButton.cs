@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ public class StartButton : MonoBehaviour
     private void Awake()
     {
         GetComponent<Button>().onClick.AddListener(OnClick);
+        Time.timeScale = 0f;
     }
 
     private void OnClick()
