@@ -96,7 +96,11 @@ public class Paddle : MonoBehaviour
             acceleration * Time.deltaTime
         );
 
-        ApplyMovement();
+        // Clamp movement to not overshoot target
+        float maxMove = Mathf.Abs(diff);
+        float actualMove = Mathf.Clamp(currentVelocity * Time.deltaTime, -maxMove, maxMove);
+        float newX = transform.position.x + actualMove;
+        rb.MovePosition(new Vector2(newX, transform.position.y));
         return true;
     }
 
