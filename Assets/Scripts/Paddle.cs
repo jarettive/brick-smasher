@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 /// Player-controlled paddle movement.
 /// Add a PaddleSurface component for bounce behavior.
 /// </summary>
+[RequireComponent(typeof(BoxCollider2D))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class Paddle : MonoBehaviour
 {
     [Header("Movement")]
@@ -14,25 +16,25 @@ public class Paddle : MonoBehaviour
     [SerializeField]
     private float accelerationTime = 10f / 60f;
 
-    [SerializeField]
-    private RectTransform areaRect;
-
     private float currentVelocity;
-    private float paddleHalfWidth;
     private Camera mainCamera;
+    private Rigidbody2D rb;
 
     private InputAction pointerPositionAction;
     private InputAction pointerPressAction;
 
     private void Awake()
     {
+        rb = GetComponent<Rigidbody2D>();
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.useFullKinematicContacts = true;
+
         pointerPositionAction = new InputAction("PointerPosition", binding: "<Pointer>/position");
         pointerPressAction = new InputAction("PointerPress", binding: "<Pointer>/press");
     }
 
     private void Start()
     {
-        paddleHalfWidth = GetPaddleWidth() / 2f;
         mainCamera = Camera.main;
     }
 
@@ -58,7 +60,7 @@ public class Paddle : MonoBehaviour
 
     private bool TryTouchMove()
     {
-        if (areaRect == null || mainCamera == null)
+        if (mainCamera == null)
             return false;
 
         // Check for pointer press (unified touch/mouse)
@@ -67,10 +69,6 @@ public class Paddle : MonoBehaviour
 
         Vector2 inputPosition = pointerPositionAction.ReadValue<Vector2>();
 
-        // Check if touch is inside the paddle area
-        if (!RectTransformUtility.RectangleContainsScreenPoint(areaRect, inputPosition, mainCamera))
-            return false;
-
         // Convert screen position to world position
         Vector3 worldPos = mainCamera.ScreenToWorldPoint(
             new Vector3(inputPosition.x, inputPosition.y, mainCamera.nearClipPlane)
@@ -78,16 +76,8 @@ public class Paddle : MonoBehaviour
 
         float targetX = worldPos.x;
 
-        // Clamp target to area bounds
-        Rect bounds = areaRect.rect;
-        Vector3 areaCenter = areaRect.transform.position;
-        float leftBound = areaCenter.x + bounds.xMin + paddleHalfWidth;
-        float rightBound = areaCenter.x + bounds.xMax - paddleHalfWidth;
-        targetX = Mathf.Clamp(targetX, leftBound, rightBound);
-
         // Calculate direction to target
         float diff = targetX - transform.position.x;
-        float targetVelocity = Mathf.Sign(diff) * moveSpeed;
 
         // Stop if close enough
         if (Mathf.Abs(diff) < 0.01f)
@@ -95,6 +85,8 @@ public class Paddle : MonoBehaviour
             currentVelocity = 0f;
             return true;
         }
+
+        float targetVelocity = Mathf.Sign(diff) * moveSpeed;
 
         // Accelerate towards target velocity
         float acceleration = moveSpeed / accelerationTime;
@@ -104,23 +96,7 @@ public class Paddle : MonoBehaviour
             acceleration * Time.deltaTime
         );
 
-        float newX = transform.position.x + currentVelocity * Time.deltaTime;
-
-        // Don't overshoot target
-        if ((currentVelocity > 0 && newX > targetX) || (currentVelocity < 0 && newX < targetX))
-        {
-            newX = targetX;
-            currentVelocity = 0f;
-        }
-
-        // Clamp to bounds and stop velocity if hitting them
-        newX = Mathf.Clamp(newX, leftBound, rightBound);
-        if (newX == leftBound || newX == rightBound)
-        {
-            currentVelocity = 0f;
-        }
-
-        transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+        ApplyMovement();
         return true;
     }
 
@@ -140,41 +116,35 @@ public class Paddle : MonoBehaviour
             acceleration * Time.deltaTime
         );
 
-        float newX = transform.position.x + currentVelocity * Time.deltaTime;
-
-        // Clamp to area bounds if assigned
-        if (areaRect != null)
-        {
-            Rect bounds = areaRect.rect;
-            Vector3 areaCenter = areaRect.transform.position;
-            float leftBound = areaCenter.x + bounds.xMin + paddleHalfWidth;
-            float rightBound = areaCenter.x + bounds.xMax - paddleHalfWidth;
-            newX = Mathf.Clamp(newX, leftBound, rightBound);
-
-            // Stop velocity if hitting bounds
-            if (newX == leftBound || newX == rightBound)
-            {
-                currentVelocity = 0f;
-            }
-        }
-
-        transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+        ApplyMovement();
     }
 
-    private float GetPaddleWidth()
+    private void ApplyMovement()
     {
-        BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
-        if (boxCollider != null)
-        {
-            return boxCollider.size.x * transform.localScale.x;
-        }
+        float newX = transform.position.x + currentVelocity * Time.deltaTime;
+        rb.MovePosition(new Vector2(newX, transform.position.y));
+    }
 
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
-        {
-            return spriteRenderer.bounds.size.x;
-        }
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        HandleBrickWallCollision(collision);
+    }
 
-        return 2f;
+    private void HandleBrickWallCollision(Collision2D collision)
+    {
+        if (collision.gameObject.layer != LayerMask.NameToLayer(Layers.BrickWall))
+            return;
+
+        // Push paddle back out of the wall
+        ContactPoint2D contact = collision.contacts[0];
+        float penetration = contact.separation;
+
+        // separation is negative when overlapping
+        if (penetration < 0)
+        {
+            Vector2 pushBack = contact.normal * -penetration * 1f;
+            transform.position += (Vector3)pushBack;
+        }
+        currentVelocity = 0f;
     }
 }

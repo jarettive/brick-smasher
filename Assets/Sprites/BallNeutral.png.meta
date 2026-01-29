@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: 7fc1f38257019bb49b96345fa1b7f857
+guid: 47e073c4d2e181f4eb2d049a8dba4e4d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3011869301351494817
-    second: Paddle_0
+      213: -1059322093140643244
+    second: BallNeutral_0
+  - first:
+      213: 6392168488787230809
+    second: BallNeutral_1
+  - first:
+      213: -7690738461796694638
+    second: BallNeutral_2
+  - first:
+      213: -951366587249873183
+    second: BallNeutral_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +135,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Paddle_0
+      name: BallNeutral_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 256
-        height: 48
+        y: 54
+        width: 25
+        height: 61
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +150,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f5b4a07f3d0b336d0800000000000000
-      internalID: -3011869301351494817
+      spriteID: 452f0a73b288c41f0800000000000000
+      internalID: -1059322093140643244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BallNeutral_1
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 54
+        width: 76
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 950cb969f5b85b850800000000000000
+      internalID: 6392168488787230809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BallNeutral_2
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 13
+        width: 23
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2958c24cd12054590800000000000000
+      internalID: -7690738461796694638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BallNeutral_3
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 0
+        width: 74
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1eeabc321211cc2f0800000000000000
+      internalID: -951366587249873183
       vertices: []
       indices: 
       edges: []
@@ -161,7 +236,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Paddle_0: -3011869301351494817
+      BallNeutral_0: -1059322093140643244
+      BallNeutral_1: 6392168488787230809
+      BallNeutral_2: -7690738461796694638
+      BallNeutral_3: -951366587249873183
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

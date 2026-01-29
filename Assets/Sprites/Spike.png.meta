@@ -1,15 +1,15 @@
 fileFormatVersion: 2
-guid: 7fc1f38257019bb49b96345fa1b7f857
+guid: 847405d65392af848b3718738df2a915
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3011869301351494817
-    second: Paddle_0
+      213: -5159362228428509745
+    second: Spike_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
+    enableMipMap: 1
     sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
@@ -57,7 +57,7 @@ TextureImporter:
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
-  textureType: 8
+  textureType: 0
   textureShape: 1
   singleChannelComponent: 0
   flipbookRows: 1
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Paddle_0
+      name: Spike_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 256
-        height: 48
+        width: 56
+        height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f5b4a07f3d0b336d0800000000000000
-      internalID: -3011869301351494817
+      spriteID: fcd63f283634668b0800000000000000
+      internalID: -5159362228428509745
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Paddle_0: -3011869301351494817
+      Spike_0: -5159362228428509745
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

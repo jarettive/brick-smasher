@@ -23,6 +23,9 @@ public class Brick : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI percentageText;
 
+    [SerializeField]
+    private KnockoutVFX knockoutVFXPrefab;
+
     private Image brickImage;
 
     private static readonly Color LightYellow = new Color(1f, 1f, 0.5f);
@@ -100,6 +103,7 @@ public class Brick : MonoBehaviour
         // Destroyed by BlastZone
         if (layer == LayerMask.NameToLayer(Layers.BlastZone))
         {
+            SpawnKnockoutVFX();
             Destroy(gameObject);
             return;
         }
@@ -118,8 +122,10 @@ public class Brick : MonoBehaviour
         if (ball == null)
             return;
 
-        float damage = ball.Velocity.magnitude * 3.2f;
-        ApplyDamage(damage, normal);
+        Vector2 ballVelocity = ball.PreBounceVelocity;
+        float damage = ballVelocity.magnitude * 3.5f;
+        Vector2 knockbackDirection = (ballVelocity.normalized + normal).normalized;
+        ApplyDamage(damage, knockbackDirection);
     }
 
     /// <summary>
@@ -134,7 +140,7 @@ public class Brick : MonoBehaviour
 
         // Knockback formula: (Percentage/10) + (Percentage * Damage)/20
         float knockbackForce = (percentage / 10f) + (percentage * damage) / 20f;
-        knockbackVelocity += direction.normalized * knockbackForce * .15f;
+        knockbackVelocity += direction.normalized * knockbackForce * .12f;
     }
 
     private void UpdatePercentageDisplay()
@@ -166,5 +172,19 @@ public class Brick : MonoBehaviour
         }
 
         brickImage.color = color;
+    }
+
+    private void SpawnKnockoutVFX()
+    {
+        if (knockoutVFXPrefab == null)
+            return;
+
+        GameObject canvasObj = GameObject.Find("WorldCanvas");
+        if (canvasObj == null)
+            return;
+
+        KnockoutVFX vfx = Instantiate(knockoutVFXPrefab, canvasObj.transform);
+        float angle = Mathf.Atan2(knockbackVelocity.y, knockbackVelocity.x) * Mathf.Rad2Deg;
+        vfx.Initialize(transform.position, angle);
     }
 }

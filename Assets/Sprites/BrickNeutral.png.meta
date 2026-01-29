@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 7fc1f38257019bb49b96345fa1b7f857
+guid: c3d3e2921fe4d6d4192f220dcee0f213
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3011869301351494817
-    second: Paddle_0
+      213: 3336743340682233213
+    second: BrickNeutral_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Paddle_0
+      name: BrickNeutral_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 256
-        height: 48
+        height: 124
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f5b4a07f3d0b336d0800000000000000
-      internalID: -3011869301351494817
+      spriteID: d75c308b36e7e4e20800000000000000
+      internalID: 3336743340682233213
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Paddle_0: -3011869301351494817
+      BrickNeutral_0: 3336743340682233213
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

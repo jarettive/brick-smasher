@@ -8,7 +8,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Ball : MonoBehaviour
 {
-    public const float MinVerticalVelocity = 0.75f;
+    public const float MinVerticalVelocity = 1.25f;
 
     [SerializeField]
     private float speed = 10f;
@@ -17,12 +17,14 @@ public class Ball : MonoBehaviour
     private float rotationSpeedMultiplier = 50f;
 
     private Vector2 velocity;
+    private Vector2 preBounceVelocity;
     private float angularVelocity;
     private CircleCollider2D circleCollider;
     private Rigidbody2D rb;
     private bool isLaunched;
 
     public Vector2 Velocity => velocity;
+    public Vector2 PreBounceVelocity => preBounceVelocity;
 
     private void Awake()
     {
@@ -32,6 +34,7 @@ public class Ball : MonoBehaviour
         // Kinematic so we control movement, but still get collision events
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.useFullKinematicContacts = true;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
     private void Start()
@@ -62,6 +65,7 @@ public class Ball : MonoBehaviour
     private void Move()
     {
         // MovePosition ensures proper collision detection for kinematic bodies
+        preBounceVelocity = velocity;
         rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
         rb.MoveRotation(rb.rotation + angularVelocity * Time.fixedDeltaTime);
     }
