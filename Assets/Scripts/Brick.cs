@@ -123,7 +123,7 @@ public class Brick : MonoBehaviour
             return;
 
         Vector2 ballVelocity = ball.PreBounceVelocity;
-        float damage = ballVelocity.magnitude * 3.5f;
+        float damage = ballVelocity.magnitude * 3.6f;
         Vector2 knockbackDirection = (ballVelocity.normalized + normal).normalized;
         ApplyDamage(damage, knockbackDirection);
     }

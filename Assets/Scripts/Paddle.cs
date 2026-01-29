@@ -16,12 +16,42 @@ public class Paddle : MonoBehaviour
     [SerializeField]
     private float accelerationTime = 10f / 60f;
 
+    [Header("Touch Area")]
+    [SerializeField]
+    private RectTransform paddleArea;
+
+    [Header("Strike")]
+    [SerializeField]
+    private float strikeDistance = 0.5f;
+
+    [SerializeField]
+    private float strikeUpSpeed = 15f;
+
+    [SerializeField]
+    private float strikeFallSpeed = 8f;
+
+    private enum StrikePhase
+    {
+        Idle,
+        Rising,
+        Falling,
+    }
+
+    private StrikePhase strikePhase = StrikePhase.Idle;
+    private float strikeStartY;
+    private bool strikeRequested;
+
+    public bool IsStriking => strikePhase == StrikePhase.Rising;
+
+    public void RequestStrike() => strikeRequested = true;
+
     private float currentVelocity;
     private Camera mainCamera;
     private Rigidbody2D rb;
 
     private InputAction pointerPositionAction;
     private InputAction pointerPressAction;
+    private InputAction strikeAction;
 
     private void Awake()
     {
@@ -31,6 +61,8 @@ public class Paddle : MonoBehaviour
 
         pointerPositionAction = new InputAction("PointerPosition", binding: "<Pointer>/position");
         pointerPressAction = new InputAction("PointerPress", binding: "<Pointer>/press");
+        strikeAction = new InputAction("Strike", binding: "<Keyboard>/space");
+        strikeAction.AddBinding("<Touchscreen>/touch1/press");
     }
 
     private void Start()
@@ -42,19 +74,69 @@ public class Paddle : MonoBehaviour
     {
         pointerPositionAction?.Enable();
         pointerPressAction?.Enable();
+        strikeAction?.Enable();
     }
 
     private void OnDisable()
     {
         pointerPositionAction?.Disable();
         pointerPressAction?.Disable();
+        strikeAction?.Disable();
     }
 
     private void Update()
     {
+        UpdateStrike();
+
         if (!TryTouchMove())
         {
             Move();
+        }
+    }
+
+    private void UpdateStrike()
+    {
+        // Start strike on input (keyboard/touch or button request)
+        if (strikeAction.WasPressedThisFrame() || strikeRequested)
+        {
+            strikeRequested = false;
+            if (strikePhase == StrikePhase.Idle)
+            {
+                strikePhase = StrikePhase.Rising;
+                strikeStartY = transform.position.y;
+            }
+        }
+
+        // Handle strike movement
+        switch (strikePhase)
+        {
+            case StrikePhase.Rising:
+                float newYUp = transform.position.y + strikeUpSpeed * Time.deltaTime;
+                if (newYUp >= strikeStartY + strikeDistance)
+                {
+                    newYUp = strikeStartY + strikeDistance;
+                    strikePhase = StrikePhase.Falling;
+                }
+                transform.position = new Vector3(
+                    transform.position.x,
+                    newYUp,
+                    transform.position.z
+                );
+                break;
+
+            case StrikePhase.Falling:
+                float newYDown = transform.position.y - strikeFallSpeed * Time.deltaTime;
+                if (newYDown <= strikeStartY)
+                {
+                    newYDown = strikeStartY;
+                    strikePhase = StrikePhase.Idle;
+                }
+                transform.position = new Vector3(
+                    transform.position.x,
+                    newYDown,
+                    transform.position.z
+                );
+                break;
         }
     }
 
@@ -68,6 +150,17 @@ public class Paddle : MonoBehaviour
             return false;
 
         Vector2 inputPosition = pointerPositionAction.ReadValue<Vector2>();
+
+        // Only respond to touches within the paddle area
+        if (
+            paddleArea != null
+            && !RectTransformUtility.RectangleContainsScreenPoint(
+                paddleArea,
+                inputPosition,
+                mainCamera
+            )
+        )
+            return false;
 
         // Convert screen position to world position
         Vector3 worldPos = mainCamera.ScreenToWorldPoint(
