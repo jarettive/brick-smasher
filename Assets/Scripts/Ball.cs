@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Ball that bounces off walls and applies knockback to bricks.
-/// Uses manual physics with collision detection.
+/// Uses manual physics with overlap detection after movement.
 /// </summary>
 [RequireComponent(typeof(CircleCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -34,17 +34,9 @@ public class Ball : MonoBehaviour
     private bool isLaunched;
     private float lastPaddleCollisionTime = float.NegativeInfinity;
 
-    // Queue collisions to process together and avoid interference
-    private struct PendingCollision
-    {
-        public Vector2 normal;
-        public Vector2 contactPoint;
-        public Vector2 relativeVelocity;
-        public Surface surface;
-        public bool isWall;
-    }
-
-    private List<PendingCollision> pendingCollisions = new();
+    private ContactFilter2D contactFilter;
+    private readonly Collider2D[] overlapResults = new Collider2D[8];
+    private readonly HashSet<Collider2D> processedThisFrame = new();
 
     public Vector2 Velocity => velocity;
     public Vector2 PreBounceVelocity => preBounceVelocity;
@@ -54,10 +46,11 @@ public class Ball : MonoBehaviour
         circleCollider = GetComponent<CircleCollider2D>();
         rb = GetComponent<Rigidbody2D>();
 
-        // Kinematic so we control movement, but still get collision events
         rb.bodyType = RigidbodyType2D.Kinematic;
-        rb.useFullKinematicContacts = true;
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
+        contactFilter = new ContactFilter2D { useTriggers = false };
+        contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
+        contactFilter.useLayerMask = true;
     }
 
     private void Start()
@@ -81,12 +74,6 @@ public class Ball : MonoBehaviour
         if (!isLaunched)
             return;
 
-        ProcessPendingCollisions();
-        Move();
-    }
-
-    private void Move()
-    {
         preBounceVelocity = velocity;
 
         // Decay speed toward minSpeed
@@ -97,87 +84,108 @@ public class Ball : MonoBehaviour
             velocity = velocity.normalized * newSpeed;
         }
 
-        rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
+        // Move the ball
+        Vector2 newPosition = rb.position + velocity * Time.fixedDeltaTime;
+        rb.MovePosition(newPosition);
         rb.MoveRotation(rb.rotation + angularVelocity * Time.fixedDeltaTime);
+
+        // Check for overlaps after moving and process collisions
+        ProcessCollisions();
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void ProcessCollisions()
     {
         if (!isLaunched)
             return;
 
-        // Use collision.collider to get the actual collider hit (not the rigidbody's gameObject)
-        GameObject hitObject = collision.collider.gameObject;
+        processedThisFrame.Clear();
 
-        // Apply cooldown for paddle collisions to prevent rapid repeat bounces
-        bool isPaddle = hitObject.GetComponent<Paddle>() != null;
-        if (isPaddle)
-        {
-            if (Time.time - lastPaddleCollisionTime < PaddleCollisionCooldown)
-                return;
-            lastPaddleCollisionTime = Time.time;
-        }
+        int overlapCount = Physics2D.OverlapCollider(circleCollider, contactFilter, overlapResults);
 
-        // Queue collision for processing - don't modify velocity immediately
-        // This prevents multiple same-frame collisions from interfering
-        Surface surface = hitObject.GetComponent<Surface>();
-        bool isBrick = hitObject.GetComponent<Brick>() != null;
-
-        if (isBrick)
-        {
-            lastPaddleCollisionTime = float.NegativeInfinity;
-        }
-
-        pendingCollisions.Add(
-            new PendingCollision
-            {
-                normal = collision.contacts[0].normal,
-                contactPoint = collision.contacts[0].point,
-                relativeVelocity = collision.relativeVelocity,
-                surface = surface,
-                isWall = !isBrick,
-            }
-        );
-    }
-
-    private void ProcessPendingCollisions()
-    {
-        if (pendingCollisions.Count == 0)
+        if (overlapCount == 0)
             return;
 
-        // Calculate each bounce independently, combine directions, use max magnitude
         Vector2 combinedDirection = Vector2.zero;
-        Vector2 combinedRelativeVelocity = Vector2.zero;
         float maxMagnitude = 0f;
+        Vector2 combinedRelativeVelocity = Vector2.zero;
+        int validCollisions = 0;
 
-        foreach (var collision in pendingCollisions)
+        for (int i = 0; i < overlapCount; i++)
         {
-            Vector2 bounceVelocity;
-            if (collision.surface != null)
+            Collider2D hitCollider = overlapResults[i];
+
+            // Skip self
+            if (hitCollider == circleCollider)
+                continue;
+
+            // Skip already processed
+            if (processedThisFrame.Contains(hitCollider))
+                continue;
+
+            processedThisFrame.Add(hitCollider);
+
+            GameObject hitObject = hitCollider.gameObject;
+
+            // Apply cooldown for paddle collisions
+            bool isPaddle = hitObject.layer == LayerMask.NameToLayer(Layers.PaddleSurface);
+            if (isPaddle)
             {
-                bounceVelocity = collision.surface.CalculateBounce(
-                    preBounceVelocity,
-                    collision.normal,
-                    collision.contactPoint
-                );
+                if (Time.time - lastPaddleCollisionTime < PaddleCollisionCooldown)
+                    continue;
+                lastPaddleCollisionTime = Time.time;
+            }
+
+            // Reset paddle cooldown when hitting a brick
+            bool isBrick = hitObject.GetComponent<Brick>() != null;
+            if (isBrick)
+            {
+                lastPaddleCollisionTime = float.NegativeInfinity;
+            }
+
+            // Get collision normal using Distance
+            ColliderDistance2D distance = circleCollider.Distance(hitCollider);
+            if (!distance.isOverlapped && distance.distance > 0.01f)
+                continue;
+
+            Vector2 normal = distance.normal;
+            Vector2 contactPoint = distance.pointA;
+
+            // Push ball out of collision
+            if (distance.isOverlapped)
+            {
+                rb.MovePosition(rb.position + (1.1f * distance.distance * normal));
+            }
+
+            // Calculate bounce
+            Surface surface = hitObject.GetComponent<Surface>();
+            Vector2 bounceVelocity;
+            if (surface != null)
+            {
+                bounceVelocity = surface.CalculateBounce(preBounceVelocity, normal, contactPoint);
             }
             else
             {
-                bounceVelocity = Vector2.Reflect(preBounceVelocity, collision.normal);
+                bounceVelocity = Vector2.Reflect(preBounceVelocity, normal);
             }
 
             combinedDirection += bounceVelocity.normalized;
             maxMagnitude = Mathf.Max(maxMagnitude, bounceVelocity.magnitude);
-            combinedRelativeVelocity += collision.relativeVelocity;
+
+            // Estimate relative velocity (paddle movement affects this)
+            Rigidbody2D hitRb = hitCollider.attachedRigidbody;
+            Vector2 hitVelocity = hitRb != null ? hitRb.linearVelocity : Vector2.zero;
+            combinedRelativeVelocity += velocity - hitVelocity;
+
+            validCollisions++;
         }
 
-        velocity = combinedDirection.normalized * maxMagnitude;
-
-        ApplyBounceRotation(combinedRelativeVelocity);
-        EnsureMinimumVerticalVelocity();
-        EnsureMinimumSpeed();
-
-        pendingCollisions.Clear();
+        if (validCollisions > 0)
+        {
+            velocity = combinedDirection.normalized * maxMagnitude;
+            ApplyBounceRotation(combinedRelativeVelocity);
+            EnsureMinimumVerticalVelocity();
+            EnsureMinimumSpeed();
+        }
     }
 
     private void ApplyBounceRotation(Vector2 relativeVelocity)
