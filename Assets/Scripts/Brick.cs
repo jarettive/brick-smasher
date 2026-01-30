@@ -153,8 +153,11 @@ public class Brick : MonoBehaviour
         }
 
         // Take damage from ball
-        Ball ball = collision.gameObject.GetComponent<Ball>();
-        if (ball == null)
+        if (!collision.gameObject.TryGetComponent<Ball>(out var ball))
+            return;
+
+        // Ignore inactive balls
+        if (!ball.IsActive)
             return;
 
         Vector2 ballVelocity = ball.PreBounceVelocity;
@@ -240,7 +243,7 @@ public class Brick : MonoBehaviour
         Transform parent = stageObj != null ? stageObj.transform : null;
 
         Ball ball = Instantiate(ballPrefab, transform.position, Quaternion.identity, parent);
-        ball.Initialize(ballProps, direction, ignoreUntilPaddle: true);
+        ball.Initialize(ballProps, direction, startInactive: true);
     }
 
     private void SpawnKnockoutVFX()

@@ -18,7 +18,7 @@ public class NeutralBallBehavior : BallBehavior
 
     public override void Smash(Ball ball)
     {
-        ball.RunCoroutine(SmashRoutine(ball));
+        ball.StartCoroutine(SmashRoutine(ball));
     }
 
     private IEnumerator SmashRoutine(Ball ball)

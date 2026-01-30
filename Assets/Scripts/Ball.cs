@@ -11,6 +11,7 @@ public class Ball : MonoBehaviour
 {
     public const float MinVerticalVelocity = 1.25f;
     private const float PaddleCollisionCooldown = 0.1f;
+    private const float UnderSpawnDuration = 1.5f;
 
     [SerializeField]
     private BallProps props;
@@ -30,7 +31,6 @@ public class Ball : MonoBehaviour
     private float angularVelocity;
     private CircleCollider2D circleCollider;
     private Rigidbody2D rb;
-    private bool isLaunched;
     private bool enforceMinSpeed = true;
     private float lastPaddleCollisionTime = float.NegativeInfinity;
 
@@ -38,7 +38,9 @@ public class Ball : MonoBehaviour
     private readonly Collider2D[] overlapResults = new Collider2D[8];
     private readonly HashSet<Collider2D> processedThisFrame = new();
     private bool collisionOccurredThisFrame;
-    private bool ignoreNonPaddleCollisions;
+    private bool isActive = true;
+    private bool underSpawn;
+    private float underSpawnEndTime;
 
     public Vector2 Velocity
     {
@@ -48,6 +50,7 @@ public class Ball : MonoBehaviour
 
     public Vector2 PreBounceVelocity => preBounceVelocity;
     public float Damage => props.Damage;
+    public bool IsActive => isActive;
     public bool EnforceMinSpeed
     {
         get => enforceMinSpeed;
@@ -89,10 +92,6 @@ public class Ball : MonoBehaviour
 
     private void Start()
     {
-        // Don't auto-launch if already initialized (spawned ball)
-        if (isLaunched)
-            return;
-
         float angle = initialLaunchAngle * Mathf.Deg2Rad;
         Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
         Launch(direction);
@@ -101,17 +100,31 @@ public class Ball : MonoBehaviour
     /// <summary>
     /// Initialize the ball with props at runtime (for spawned balls).
     /// </summary>
-    public void Initialize(BallProps newProps, Vector2 direction, bool ignoreUntilPaddle = false)
+    public void Initialize(BallProps newProps, Vector2 direction, bool startInactive = false)
     {
         props = newProps;
-        ignoreNonPaddleCollisions = ignoreUntilPaddle;
+
+        // Check if spawned below paddle
+        Paddle paddle = FindAnyObjectByType<Paddle>();
+        bool isBelowPaddle = paddle != null && transform.position.y < paddle.transform.position.y;
+
+        if (isBelowPaddle)
+        {
+            isActive = true;
+            underSpawn = true;
+            underSpawnEndTime = Time.time + UnderSpawnDuration;
+        }
+        else
+        {
+            isActive = !startInactive;
+        }
 
         if (spriteRenderer != null && props.Sprite != null)
         {
             spriteRenderer.sprite = props.Sprite;
         }
 
-        Launch(direction);
+        initialLaunchAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
     }
 
     /// <summary>
@@ -120,7 +133,6 @@ public class Ball : MonoBehaviour
     public void Launch(Vector2 direction)
     {
         velocity = direction.normalized * props.MinSpeed;
-        isLaunched = true;
 
         if (props.FixedRotation)
         {
@@ -130,8 +142,11 @@ public class Ball : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isLaunched)
-            return;
+        // Clear underSpawn after duration expires
+        if (underSpawn && Time.time >= underSpawnEndTime)
+        {
+            underSpawn = false;
+        }
 
         preBounceVelocity = velocity;
 
@@ -170,7 +185,7 @@ public class Ball : MonoBehaviour
 
     private void Update()
     {
-        if (!isLaunched)
+        if (!isActive)
             return;
 
         props.Behavior?.OnUpdate(this);
@@ -181,22 +196,14 @@ public class Ball : MonoBehaviour
     /// </summary>
     public void Smash()
     {
-        props.Behavior?.Smash(this);
-    }
+        if (!isActive)
+            return;
 
-    /// <summary>
-    /// Start a coroutine on behalf of a behavior.
-    /// </summary>
-    public Coroutine RunCoroutine(System.Collections.IEnumerator routine)
-    {
-        return StartCoroutine(routine);
+        props.Behavior?.Smash(this);
     }
 
     private void ProcessCollisions()
     {
-        if (!isLaunched)
-            return;
-
         processedThisFrame.Clear();
 
         int overlapCount = Physics2D.OverlapCollider(circleCollider, contactFilter, overlapResults);
@@ -225,17 +232,22 @@ public class Ball : MonoBehaviour
 
             GameObject hitObject = hitCollider.gameObject;
 
-            // Check if this is a paddle collision
+            // Check if this is a paddle or brick collision
             bool isPaddle = hitObject.layer == LayerMask.NameToLayer(Layers.PaddleSurface);
+            bool isBrick = hitObject.GetComponent<Brick>() != null;
 
-            // Skip non-paddle collisions if ignoring until paddle hit
-            if (ignoreNonPaddleCollisions && !isPaddle)
+            // Skip non-paddle collisions if ball is inactive
+            if (!isActive && !isPaddle)
                 continue;
 
-            // Clear ignore flag on paddle hit
+            // Skip paddle and brick collisions during underSpawn
+            if (underSpawn && (isPaddle || isBrick))
+                continue;
+
+            // Activate ball on paddle hit
             if (isPaddle)
             {
-                ignoreNonPaddleCollisions = false;
+                isActive = true;
 
                 if (Time.time - lastPaddleCollisionTime < PaddleCollisionCooldown)
                     continue;
@@ -243,7 +255,6 @@ public class Ball : MonoBehaviour
             }
 
             // Reset paddle cooldown when hitting a brick
-            bool isBrick = hitObject.GetComponent<Brick>() != null;
             if (isBrick)
             {
                 lastPaddleCollisionTime = float.NegativeInfinity;
