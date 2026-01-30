@@ -21,6 +21,10 @@ public class Brick : MonoBehaviour
     private float maxReturnDistance = 5f;
 
     [SerializeField]
+    [Tooltip("Higher rigidity = less knockback. 10 = normal, 20 = half knockback")]
+    private float rigidity = 10f;
+
+    [SerializeField]
     private TextMeshProUGUI percentageText;
 
     [SerializeField]
@@ -178,7 +182,7 @@ public class Brick : MonoBehaviour
 
         // Knockback formula: (Percentage/10) + (Percentage * Damage)/20
         float knockbackForce = (percentage / 10f) + (percentage * damage) / 20f;
-        knockbackVelocity += direction.normalized * knockbackForce * .10f;
+        knockbackVelocity += knockbackForce / rigidity * direction.normalized;
     }
 
     private void UpdatePercentageDisplay()
