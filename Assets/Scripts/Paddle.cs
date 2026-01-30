@@ -48,6 +48,9 @@ public class Paddle : MonoBehaviour
     private float currentVelocity;
     private Camera mainCamera;
     private Rigidbody2D rb;
+    private BoxCollider2D boxCollider;
+    private ContactFilter2D wallFilter;
+    private readonly Collider2D[] overlapResults = new Collider2D[4];
 
     private InputAction pointerPositionAction;
     private InputAction pointerPressAction;
@@ -58,6 +61,11 @@ public class Paddle : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.useFullKinematicContacts = true;
+
+        boxCollider = GetComponent<BoxCollider2D>();
+        wallFilter = new ContactFilter2D();
+        wallFilter.SetLayerMask(LayerMask.GetMask(Layers.BrickWall));
+        wallFilter.useLayerMask = true;
 
         pointerPositionAction = new InputAction("PointerPosition", binding: "<Pointer>/position");
         pointerPressAction = new InputAction("PointerPress", binding: "<Pointer>/press");
@@ -103,7 +111,7 @@ public class Paddle : MonoBehaviour
             if (strikePhase == StrikePhase.Idle)
             {
                 strikePhase = StrikePhase.Rising;
-                strikeStartY = transform.position.y;
+                strikeStartY = rb.position.y;
             }
         }
 
@@ -111,31 +119,23 @@ public class Paddle : MonoBehaviour
         switch (strikePhase)
         {
             case StrikePhase.Rising:
-                float newYUp = transform.position.y + strikeUpSpeed * Time.deltaTime;
+                float newYUp = rb.position.y + strikeUpSpeed * Time.deltaTime;
                 if (newYUp >= strikeStartY + strikeDistance)
                 {
                     newYUp = strikeStartY + strikeDistance;
                     strikePhase = StrikePhase.Falling;
                 }
-                transform.position = new Vector3(
-                    transform.position.x,
-                    newYUp,
-                    transform.position.z
-                );
+                rb.MovePosition(new Vector2(rb.position.x, newYUp));
                 break;
 
             case StrikePhase.Falling:
-                float newYDown = transform.position.y - strikeFallSpeed * Time.deltaTime;
+                float newYDown = rb.position.y - strikeFallSpeed * Time.deltaTime;
                 if (newYDown <= strikeStartY)
                 {
                     newYDown = strikeStartY;
                     strikePhase = StrikePhase.Idle;
                 }
-                transform.position = new Vector3(
-                    transform.position.x,
-                    newYDown,
-                    transform.position.z
-                );
+                rb.MovePosition(new Vector2(rb.position.x, newYDown));
                 break;
         }
     }
@@ -170,7 +170,7 @@ public class Paddle : MonoBehaviour
         float targetX = worldPos.x;
 
         // Calculate direction to target
-        float diff = targetX - transform.position.x;
+        float diff = targetX - rb.position.x;
 
         // Stop if close enough
         if (Mathf.Abs(diff) < 0.01f)
@@ -192,8 +192,7 @@ public class Paddle : MonoBehaviour
         // Clamp movement to not overshoot target
         float maxMove = Mathf.Abs(diff);
         float actualMove = Mathf.Clamp(currentVelocity * Time.deltaTime, -maxMove, maxMove);
-        float newX = transform.position.x + actualMove;
-        rb.MovePosition(new Vector2(newX, transform.position.y));
+        MoveHorizontal(actualMove);
         return true;
     }
 
@@ -213,35 +212,34 @@ public class Paddle : MonoBehaviour
             acceleration * Time.deltaTime
         );
 
-        ApplyMovement();
+        MoveHorizontal(currentVelocity * Time.deltaTime);
     }
 
-    private void ApplyMovement()
+    private void MoveHorizontal(float deltaX)
     {
-        float newX = transform.position.x + currentVelocity * Time.deltaTime;
-        rb.MovePosition(new Vector2(newX, transform.position.y));
-    }
-
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        HandleBrickWallCollision(collision);
-    }
-
-    private void HandleBrickWallCollision(Collision2D collision)
-    {
-        if (collision.gameObject.layer != LayerMask.NameToLayer(Layers.BrickWall))
+        if (Mathf.Approximately(deltaX, 0f))
             return;
 
-        // Push paddle back out of the wall
-        ContactPoint2D contact = collision.contacts[0];
-        float penetration = contact.separation;
+        // Move to target position first
+        Vector2 targetPos = new(rb.position.x + deltaX, rb.position.y);
+        rb.MovePosition(targetPos);
 
-        // separation is negative when overlapping
-        if (penetration < 0)
+        // Check for wall overlap at new position
+        int overlapCount = Physics2D.OverlapCollider(boxCollider, wallFilter, overlapResults);
+
+        if (overlapCount > 0)
         {
-            Vector2 pushBack = contact.normal * -penetration * 1f;
-            transform.position += (Vector3)pushBack;
+            for (int i = 0; i < overlapCount; i++)
+            {
+                ColliderDistance2D distance = boxCollider.Distance(overlapResults[i]);
+
+                if (distance.isOverlapped)
+                {
+                    targetPos += distance.normal * distance.distance;
+                    currentVelocity = 0f;
+                    rb.MovePosition(targetPos);
+                }
+            }
         }
-        currentVelocity = 0f;
     }
 }
