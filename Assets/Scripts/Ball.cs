@@ -121,6 +121,11 @@ public class Ball : MonoBehaviour
     {
         velocity = direction.normalized * props.MinSpeed;
         isLaunched = true;
+
+        if (props.FixedRotation)
+        {
+            angularVelocity = props.RotationSpeed;
+        }
     }
 
     private void FixedUpdate()
@@ -293,6 +298,10 @@ public class Ball : MonoBehaviour
 
     private void ApplyBounceRotation(Vector2 relativeVelocity)
     {
+        // Skip if using fixed rotation from props
+        if (props.FixedRotation)
+            return;
+
         // Angular velocity influenced by horizontal component of impact
         angularVelocity = -relativeVelocity.x * rotationSpeedMultiplier;
     }
