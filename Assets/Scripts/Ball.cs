@@ -7,7 +7,6 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(CircleCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(SpriteRenderer))]
 public class Ball : MonoBehaviour
 {
     public const float MinVerticalVelocity = 1.25f;
@@ -19,6 +18,7 @@ public class Ball : MonoBehaviour
     [SerializeField]
     private float rotationSpeedMultiplier = 50f;
 
+    [SerializeField]
     private SpriteRenderer spriteRenderer;
 
     [SerializeField]
@@ -31,31 +31,58 @@ public class Ball : MonoBehaviour
     private CircleCollider2D circleCollider;
     private Rigidbody2D rb;
     private bool isLaunched;
+    private bool enforceMinSpeed = true;
     private float lastPaddleCollisionTime = float.NegativeInfinity;
 
     private ContactFilter2D contactFilter;
     private readonly Collider2D[] overlapResults = new Collider2D[8];
     private readonly HashSet<Collider2D> processedThisFrame = new();
+    private bool collisionOccurredThisFrame;
 
-    public Vector2 Velocity => velocity;
+    public Vector2 Velocity
+    {
+        get => velocity;
+        set => velocity = value;
+    }
+
     public Vector2 PreBounceVelocity => preBounceVelocity;
     public float Damage => props.Damage;
+    public bool EnforceMinSpeed
+    {
+        get => enforceMinSpeed;
+        set => enforceMinSpeed = value;
+    }
+
+    /// <summary>
+    /// Returns true if a collision occurred this frame. Resets the flag when called.
+    /// </summary>
+    public bool CheckAndClearCollision()
+    {
+        bool result = collisionOccurredThisFrame;
+        collisionOccurredThisFrame = false;
+        return result;
+    }
 
     private void Awake()
     {
         circleCollider = GetComponent<CircleCollider2D>();
         rb = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
 
         rb.bodyType = RigidbodyType2D.Kinematic;
 
         contactFilter = new ContactFilter2D { useTriggers = false };
         contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
         contactFilter.useLayerMask = true;
+    }
 
+    private void OnValidate()
+    {
         if (props != null && props.Sprite != null)
         {
-            spriteRenderer.sprite = props.Sprite;
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sprite = props.Sprite;
+            }
         }
     }
 
@@ -83,11 +110,17 @@ public class Ball : MonoBehaviour
         preBounceVelocity = velocity;
 
         // Decay speed toward minSpeed
-        float currentSpeed = velocity.magnitude;
-        if (currentSpeed > props.MinSpeed)
+        if (enforceMinSpeed)
         {
-            float newSpeed = Mathf.Max(props.MinSpeed, currentSpeed - props.SpeedDecay * Time.fixedDeltaTime);
-            velocity = velocity.normalized * newSpeed;
+            float currentSpeed = velocity.magnitude;
+            if (currentSpeed > props.MinSpeed)
+            {
+                float newSpeed = Mathf.Max(
+                    props.MinSpeed,
+                    currentSpeed - props.SpeedDecay * Time.fixedDeltaTime
+                );
+                velocity = velocity.normalized * newSpeed;
+            }
         }
 
         // Move the ball
@@ -105,6 +138,11 @@ public class Ball : MonoBehaviour
             return;
 
         props.Behavior?.OnUpdate(this);
+
+        if (InputController.Instance != null && InputController.Instance.IsSmashTriggered())
+        {
+            Smash();
+        }
     }
 
     /// <summary>
@@ -112,7 +150,15 @@ public class Ball : MonoBehaviour
     /// </summary>
     public void Smash()
     {
-        props.Behavior?.OnSmash(this);
+        props.Behavior?.Smash(this);
+    }
+
+    /// <summary>
+    /// Start a coroutine on behalf of a behavior.
+    /// </summary>
+    public Coroutine RunCoroutine(System.Collections.IEnumerator routine)
+    {
+        return StartCoroutine(routine);
     }
 
     private void ProcessCollisions()
@@ -203,6 +249,7 @@ public class Ball : MonoBehaviour
 
         if (validCollisions > 0)
         {
+            collisionOccurredThisFrame = true;
             velocity = combinedDirection.normalized * maxMagnitude;
             ApplyBounceRotation(combinedRelativeVelocity);
             EnsureMinimumVerticalVelocity();

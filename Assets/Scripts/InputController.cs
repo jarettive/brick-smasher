@@ -17,6 +17,12 @@ public class InputController : MonoBehaviour
     [SerializeField]
     private InputActionReference moveActionRef;
 
+    [SerializeField]
+    private InputActionReference strikeActionRef;
+
+    [SerializeField]
+    private InputActionReference smashActionRef;
+
     private InputAction debugSlowAction;
     private InputAction debugSlowerAction;
     private InputAction debugFastAction;
@@ -49,6 +55,8 @@ public class InputController : MonoBehaviour
     private void OnEnable()
     {
         moveActionRef?.action?.Enable();
+        strikeActionRef?.action?.Enable();
+        smashActionRef?.action?.Enable();
         debugSlowAction?.Enable();
         debugSlowerAction?.Enable();
         debugFastAction?.Enable();
@@ -57,6 +65,8 @@ public class InputController : MonoBehaviour
     private void OnDisable()
     {
         moveActionRef?.action?.Disable();
+        strikeActionRef?.action?.Disable();
+        smashActionRef?.action?.Disable();
         debugSlowAction?.Disable();
         debugSlowerAction?.Disable();
         debugFastAction?.Disable();
@@ -95,6 +105,28 @@ public class InputController : MonoBehaviour
             return 0f;
 
         return moveActionRef.action.ReadValue<float>();
+    }
+
+    /// <summary>
+    /// Returns true if strike was triggered this frame (via input or button).
+    /// </summary>
+    public bool IsStrikeTriggered()
+    {
+        if (strikeActionRef != null && strikeActionRef.action != null)
+            return strikeActionRef.action.WasPressedThisFrame();
+
+        return false;
+    }
+
+    /// <summary>
+    /// Returns true if smash was triggered this frame (via input or button).
+    /// </summary>
+    public bool IsSmashTriggered()
+    {
+        if (smashActionRef != null && smashActionRef.action != null)
+            return smashActionRef.action.WasPressedThisFrame();
+
+        return false;
     }
 
     private void SetDebugSpeed(KeyCode key, float speed)

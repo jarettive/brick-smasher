@@ -14,5 +14,5 @@ public abstract class BallBehavior : ScriptableObject
     /// <summary>
     /// Called when the Smash button is pressed.
     /// </summary>
-    public virtual void OnSmash(Ball ball) { }
+    public virtual void Smash(Ball ball) { }
 }

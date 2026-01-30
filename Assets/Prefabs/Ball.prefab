@@ -114,9 +114,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec60524430eec4d40946b30ddc7dcc35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minSpeed: 10
-  speedDecay: 5
+  props: {fileID: 11400000, guid: e940cf48313476547b8834fdecfb96a6, type: 2}
   rotationSpeedMultiplier: 50
+  spriteRenderer: {fileID: 9163803353182296270}
   initialLaunchAngle: 20
 --- !u!1 &7413516227072261033
 GameObject:

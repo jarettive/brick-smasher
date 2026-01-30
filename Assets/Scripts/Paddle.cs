@@ -43,7 +43,6 @@ public class Paddle : MonoBehaviour
 
     private StrikePhase strikePhase = StrikePhase.Idle;
     private float strikeStartY;
-    private bool strikeRequested;
 
     public bool IsStriking => strikePhase == StrikePhase.Rising;
 
@@ -51,8 +50,6 @@ public class Paddle : MonoBehaviour
         strikePhase == StrikePhase.Rising
             ? new Vector2(0f, strikeUpSpeed * strikeBoostRatio)
             : Vector2.zero;
-
-    public void RequestStrike() => strikeRequested = true;
 
     private float currentVelocity;
     private Camera mainCamera;
@@ -63,7 +60,6 @@ public class Paddle : MonoBehaviour
 
     private InputAction pointerPositionAction;
     private InputAction pointerPressAction;
-    private InputAction strikeAction;
 
     private void Awake()
     {
@@ -78,8 +74,6 @@ public class Paddle : MonoBehaviour
 
         pointerPositionAction = new InputAction("PointerPosition", binding: "<Pointer>/position");
         pointerPressAction = new InputAction("PointerPress", binding: "<Pointer>/press");
-        strikeAction = new InputAction("Strike", binding: "<Keyboard>/space");
-        strikeAction.AddBinding("<Touchscreen>/touch1/press");
     }
 
     private void Start()
@@ -91,14 +85,12 @@ public class Paddle : MonoBehaviour
     {
         pointerPositionAction?.Enable();
         pointerPressAction?.Enable();
-        strikeAction?.Enable();
     }
 
     private void OnDisable()
     {
         pointerPositionAction?.Disable();
         pointerPressAction?.Disable();
-        strikeAction?.Disable();
     }
 
     private void Update()
@@ -113,10 +105,9 @@ public class Paddle : MonoBehaviour
 
     private void UpdateStrike()
     {
-        // Start strike on input (keyboard/touch or button request)
-        if (strikeAction.WasPressedThisFrame() || strikeRequested)
+        // Start strike on input
+        if (InputController.Instance != null && InputController.Instance.IsStrikeTriggered())
         {
-            strikeRequested = false;
             if (strikePhase == StrikePhase.Idle)
             {
                 strikePhase = StrikePhase.Rising;
