@@ -7,20 +7,19 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(CircleCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(SpriteRenderer))]
 public class Ball : MonoBehaviour
 {
     public const float MinVerticalVelocity = 1.25f;
     private const float PaddleCollisionCooldown = 0.1f;
 
     [SerializeField]
-    private float minSpeed = 10f;
-
-    [SerializeField]
-    [Tooltip("Speed decay per second toward minSpeed")]
-    private float speedDecay = 5f;
+    private BallProps props;
 
     [SerializeField]
     private float rotationSpeedMultiplier = 50f;
+
+    private SpriteRenderer spriteRenderer;
 
     [SerializeField]
     [Tooltip("Initial launch angle in degrees (0 = right, 90 = up)")]
@@ -40,17 +39,24 @@ public class Ball : MonoBehaviour
 
     public Vector2 Velocity => velocity;
     public Vector2 PreBounceVelocity => preBounceVelocity;
+    public float Damage => props.Damage;
 
     private void Awake()
     {
         circleCollider = GetComponent<CircleCollider2D>();
         rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         rb.bodyType = RigidbodyType2D.Kinematic;
 
         contactFilter = new ContactFilter2D { useTriggers = false };
         contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
         contactFilter.useLayerMask = true;
+
+        if (props != null && props.Sprite != null)
+        {
+            spriteRenderer.sprite = props.Sprite;
+        }
     }
 
     private void Start()
@@ -65,7 +71,7 @@ public class Ball : MonoBehaviour
     /// </summary>
     public void Launch(Vector2 direction)
     {
-        velocity = direction.normalized * minSpeed;
+        velocity = direction.normalized * props.MinSpeed;
         isLaunched = true;
     }
 
@@ -78,9 +84,9 @@ public class Ball : MonoBehaviour
 
         // Decay speed toward minSpeed
         float currentSpeed = velocity.magnitude;
-        if (currentSpeed > minSpeed)
+        if (currentSpeed > props.MinSpeed)
         {
-            float newSpeed = Mathf.Max(minSpeed, currentSpeed - speedDecay * Time.fixedDeltaTime);
+            float newSpeed = Mathf.Max(props.MinSpeed, currentSpeed - props.SpeedDecay * Time.fixedDeltaTime);
             velocity = velocity.normalized * newSpeed;
         }
 
@@ -91,6 +97,22 @@ public class Ball : MonoBehaviour
 
         // Check for overlaps after moving and process collisions
         ProcessCollisions();
+    }
+
+    private void Update()
+    {
+        if (!isLaunched)
+            return;
+
+        props.Behavior?.OnUpdate(this);
+    }
+
+    /// <summary>
+    /// Called when the Smash button is pressed.
+    /// </summary>
+    public void Smash()
+    {
+        props.Behavior?.OnSmash(this);
     }
 
     private void ProcessCollisions()
@@ -208,9 +230,9 @@ public class Ball : MonoBehaviour
     private void EnsureMinimumSpeed()
     {
         float currentSpeed = velocity.magnitude;
-        if (currentSpeed < minSpeed)
+        if (currentSpeed < props.MinSpeed)
         {
-            velocity = velocity.normalized * minSpeed;
+            velocity = velocity.normalized * props.MinSpeed;
         }
     }
 }
