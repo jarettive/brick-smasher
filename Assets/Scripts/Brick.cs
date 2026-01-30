@@ -26,6 +26,16 @@ public class Brick : MonoBehaviour
     [SerializeField]
     private KnockoutVFX knockoutVFXPrefab;
 
+    [Header("Ball Contents")]
+    [SerializeField]
+    private BallProps ballProps;
+
+    [SerializeField]
+    private SpriteRenderer ballSpriteRenderer;
+
+    [SerializeField]
+    private Ball ballPrefab;
+
     private Image brickImage;
 
     private static readonly Color LightYellow = new(1f, 1f, 0.5f);
@@ -45,6 +55,32 @@ public class Brick : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Kinematic;
         brickImage = GetComponent<Image>();
+    }
+
+    private void OnValidate()
+    {
+        UpdateBallSprite();
+    }
+
+    private void OnEnable()
+    {
+        UpdateBallSprite();
+    }
+
+    private void UpdateBallSprite()
+    {
+        if (ballSpriteRenderer == null)
+            return;
+
+        if (ballProps != null && ballProps.Sprite != null)
+        {
+            ballSpriteRenderer.sprite = ballProps.Sprite;
+            ballSpriteRenderer.enabled = true;
+        }
+        else
+        {
+            ballSpriteRenderer.enabled = false;
+        }
     }
 
     private void Start()
@@ -103,8 +139,7 @@ public class Brick : MonoBehaviour
         // Destroyed by BlastZone
         if (layer == LayerMask.NameToLayer(Layers.BlastZone))
         {
-            SpawnKnockoutVFX();
-            Destroy(gameObject);
+            OnKnockout();
             return;
         }
 
@@ -172,6 +207,40 @@ public class Brick : MonoBehaviour
         }
 
         brickImage.color = color;
+    }
+
+    private void OnKnockout()
+    {
+        SpawnKnockoutVFX();
+        SpawnBall();
+        Destroy(gameObject);
+    }
+
+    private void SpawnBall()
+    {
+        if (ballProps == null || ballPrefab == null)
+            return;
+
+        // Find paddle to aim toward
+        Paddle paddle = FindAnyObjectByType<Paddle>();
+        Vector2 direction;
+        if (paddle != null)
+        {
+            direction = (
+                (Vector2)paddle.transform.position - (Vector2)transform.position
+            ).normalized;
+        }
+        else
+        {
+            direction = Vector2.down;
+        }
+
+        // Find Stage parent
+        GameObject stageObj = GameObject.Find("Stage");
+        Transform parent = stageObj != null ? stageObj.transform : null;
+
+        Ball ball = Instantiate(ballPrefab, transform.position, Quaternion.identity, parent);
+        ball.Initialize(ballProps, direction, ignoreUntilPaddle: true);
     }
 
     private void SpawnKnockoutVFX()

@@ -38,6 +38,7 @@ public class Ball : MonoBehaviour
     private readonly Collider2D[] overlapResults = new Collider2D[8];
     private readonly HashSet<Collider2D> processedThisFrame = new();
     private bool collisionOccurredThisFrame;
+    private bool ignoreNonPaddleCollisions;
 
     public Vector2 Velocity
     {
@@ -88,8 +89,28 @@ public class Ball : MonoBehaviour
 
     private void Start()
     {
+        // Don't auto-launch if already initialized (spawned ball)
+        if (isLaunched)
+            return;
+
         float angle = initialLaunchAngle * Mathf.Deg2Rad;
         Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
+        Launch(direction);
+    }
+
+    /// <summary>
+    /// Initialize the ball with props at runtime (for spawned balls).
+    /// </summary>
+    public void Initialize(BallProps newProps, Vector2 direction, bool ignoreUntilPaddle = false)
+    {
+        props = newProps;
+        ignoreNonPaddleCollisions = ignoreUntilPaddle;
+
+        if (spriteRenderer != null && props.Sprite != null)
+        {
+            spriteRenderer.sprite = props.Sprite;
+        }
+
         Launch(direction);
     }
 
@@ -199,10 +220,18 @@ public class Ball : MonoBehaviour
 
             GameObject hitObject = hitCollider.gameObject;
 
-            // Apply cooldown for paddle collisions
+            // Check if this is a paddle collision
             bool isPaddle = hitObject.layer == LayerMask.NameToLayer(Layers.PaddleSurface);
+
+            // Skip non-paddle collisions if ignoring until paddle hit
+            if (ignoreNonPaddleCollisions && !isPaddle)
+                continue;
+
+            // Clear ignore flag on paddle hit
             if (isPaddle)
             {
+                ignoreNonPaddleCollisions = false;
+
                 if (Time.time - lastPaddleCollisionTime < PaddleCollisionCooldown)
                     continue;
                 lastPaddleCollisionTime = Time.time;
