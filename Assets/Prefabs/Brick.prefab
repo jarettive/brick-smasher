@@ -61,6 +61,7 @@ MonoBehaviour:
   knockoutVFXPrefab: {fileID: 3485983695447121211, guid: 0e37ada66374b8247ba0717dca8c2293, type: 3}
   ballProps: {fileID: 0}
   ballSpriteRenderer: {fileID: 6668279966069620500}
+  ballPrefab: {fileID: 3319942853080331134, guid: 4d2dd019fcc3c2340a62e11771834593, type: 3}
 --- !u!222 &1408673718203980865
 CanvasRenderer:
   m_ObjectHideFlags: 0

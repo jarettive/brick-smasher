@@ -15,5 +15,7 @@ MonoBehaviour:
   minSpeed: 5
   speedDecay: 5
   sprite: {fileID: 21300000, guid: c44506adc9eb7cb49be461537942ceda, type: 3}
-  damage: 10
-  behavior: {fileID: 0}
+  damage: 8
+  behavior: {fileID: 11400000, guid: 56cd003487a02eb4f9b908939afd3e86, type: 2}
+  fixedRotation: 1
+  rotationSpeed: 140.4
