@@ -10,22 +10,11 @@ public class PaddleSurface : Surface
     private float maxBounceAngle = 60f;
 
     [SerializeField]
-    [Range(0f, 0.5f)]
-    private float tipZoneSize = 0.2f;
-
-    [Header("Strike Boost")]
-    [SerializeField]
-    private float strikeSpeedBoost = 1.5f;
+    [Range(0f, 0.7f)]
+    private float tipZoneSize = 0.52f;
 
     [SerializeField]
-    private float strikeUpwardAngle = 30f;
-
     private Paddle paddle;
-
-    private void Awake()
-    {
-        paddle = GetComponent<Paddle>();
-    }
 
     public override Vector2 CalculateBounce(
         Vector2 incomingVelocity,
@@ -33,6 +22,12 @@ public class PaddleSurface : Surface
         Vector2 contactPoint
     )
     {
+        // Eliminate corner bounces - if y is not 0, treat as purely vertical normal
+        if (normal.y != 0f)
+        {
+            normal = new Vector2(0f, Mathf.Sign(normal.y));
+        }
+
         // Calculate where on the paddle the ball hit (-1 to 1)
         Vector2 localContact = transform.InverseTransformPoint(contactPoint);
         float paddleWidth = GetLocalPaddleWidth();
@@ -40,7 +35,9 @@ public class PaddleSurface : Surface
         hitOffset = Mathf.Clamp(hitOffset, -1f, 1f);
 
         float tipThreshold = 1f - tipZoneSize;
-
+        // Center zone - standard reflection
+        Vector2 result = Vector2.Reflect(incomingVelocity, normal);
+        float resultAngle = Mathf.Atan2(result.y, result.x) * Mathf.Rad2Deg;
         // Check if hit is in tip zone
         if (Mathf.Abs(hitOffset) > tipThreshold)
         {
@@ -51,29 +48,23 @@ public class PaddleSurface : Surface
             // Apply angle based on tip progress (left tip = left skew, right tip = right skew)
             float bounceAngle = direction * tipProgress * maxBounceAngle;
             float angleRad = (90f - bounceAngle) * Mathf.Deg2Rad;
-            Vector2 bounceDirection = new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+            Vector2 bounceDirection = new(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
 
             Vector2 tipResult = bounceDirection * incomingVelocity.magnitude;
+            float tipAngle = Mathf.Atan2(tipResult.y, tipResult.x) * Mathf.Rad2Deg;
             return ApplyStrikeBoost(tipResult);
         }
 
         // Center zone - standard reflection
-        Vector2 result = Vector2.Reflect(incomingVelocity, normal);
         return ApplyStrikeBoost(result);
     }
 
     private Vector2 ApplyStrikeBoost(Vector2 velocity)
     {
-        if (paddle == null || !paddle.IsStriking)
+        if (paddle == null && paddle.IsStriking)
             return velocity;
 
-        // Add upward angle bias
-        float currentAngle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg;
-        float boostedAngle = Mathf.Lerp(currentAngle, 90f, strikeUpwardAngle / 90f);
-        float rad = boostedAngle * Mathf.Deg2Rad;
-
-        Vector2 newDirection = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
-        return newDirection * velocity.magnitude * strikeSpeedBoost;
+        return velocity + paddle.StrikeVelocity;
     }
 
     private float GetLocalPaddleWidth()

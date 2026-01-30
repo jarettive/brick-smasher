@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -11,10 +12,18 @@ public class Ball : MonoBehaviour
     public const float MinVerticalVelocity = 1.25f;
 
     [SerializeField]
-    private float speed = 10f;
+    private float minSpeed = 10f;
+
+    [SerializeField]
+    [Tooltip("Speed decay per second toward minSpeed")]
+    private float speedDecay = 5f;
 
     [SerializeField]
     private float rotationSpeedMultiplier = 50f;
+
+    [SerializeField]
+    [Tooltip("Initial launch angle in degrees (0 = right, 90 = up)")]
+    private float initialLaunchAngle = 20f;
 
     private Vector2 velocity;
     private Vector2 preBounceVelocity;
@@ -22,6 +31,18 @@ public class Ball : MonoBehaviour
     private CircleCollider2D circleCollider;
     private Rigidbody2D rb;
     private bool isLaunched;
+
+    // Queue collisions to process together and avoid interference
+    private struct PendingCollision
+    {
+        public Vector2 normal;
+        public Vector2 contactPoint;
+        public Vector2 relativeVelocity;
+        public Surface surface;
+        public bool isWall;
+    }
+
+    private List<PendingCollision> pendingCollisions = new();
 
     public Vector2 Velocity => velocity;
     public Vector2 PreBounceVelocity => preBounceVelocity;
@@ -39,9 +60,8 @@ public class Ball : MonoBehaviour
 
     private void Start()
     {
-        // Launch at 20 degrees (0 = right, 90 = up)
-        float angle = 20f * Mathf.Deg2Rad;
-        Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+        float angle = initialLaunchAngle * Mathf.Deg2Rad;
+        Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
         Launch(direction);
     }
 
@@ -50,7 +70,7 @@ public class Ball : MonoBehaviour
     /// </summary>
     public void Launch(Vector2 direction)
     {
-        velocity = direction.normalized * speed;
+        velocity = direction.normalized * minSpeed;
         isLaunched = true;
     }
 
@@ -59,13 +79,22 @@ public class Ball : MonoBehaviour
         if (!isLaunched)
             return;
 
+        ProcessPendingCollisions();
         Move();
     }
 
     private void Move()
     {
-        // MovePosition ensures proper collision detection for kinematic bodies
         preBounceVelocity = velocity;
+
+        // Decay speed toward minSpeed
+        float currentSpeed = velocity.magnitude;
+        if (currentSpeed > minSpeed)
+        {
+            float newSpeed = Mathf.Max(minSpeed, currentSpeed - speedDecay * Time.fixedDeltaTime);
+            velocity = velocity.normalized * newSpeed;
+        }
+
         rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
         rb.MoveRotation(rb.rotation + angularVelocity * Time.fixedDeltaTime);
     }
@@ -74,27 +103,62 @@ public class Ball : MonoBehaviour
     {
         if (!isLaunched)
             return;
+        // Queue collision for processing - don't modify velocity immediately
+        // This prevents multiple same-frame collisions from interfering
+        // Use collision.collider to get the actual collider hit (not the rigidbody's gameObject)
+        GameObject hitObject = collision.collider.gameObject;
+        Surface surface = hitObject.GetComponent<Surface>();
+        bool isWall = hitObject.GetComponent<Brick>() == null;
+        pendingCollisions.Add(
+            new PendingCollision
+            {
+                normal = collision.contacts[0].normal,
+                contactPoint = collision.contacts[0].point,
+                relativeVelocity = collision.relativeVelocity,
+                surface = surface,
+                isWall = isWall,
+            }
+        );
+    }
 
-        Vector2 normal = collision.contacts[0].normal;
-        Vector2 contactPoint = collision.contacts[0].point;
+    private void ProcessPendingCollisions()
+    {
+        if (pendingCollisions.Count == 0)
+            return;
 
-        // Let the surface define bounce behavior if it has one
-        Surface surface = collision.gameObject.GetComponent<Surface>();
-        if (surface != null)
+        // Calculate each bounce independently, combine directions, use max magnitude
+        Vector2 combinedDirection = Vector2.zero;
+        Vector2 combinedRelativeVelocity = Vector2.zero;
+        float maxMagnitude = 0f;
+
+        foreach (var collision in pendingCollisions)
         {
-            velocity = surface.CalculateBounce(velocity, normal, contactPoint);
-        }
-        else
-        {
-            // Default bounce for objects without Surface component
-            velocity = Vector2.Reflect(velocity, normal);
+            Vector2 bounceVelocity;
+            if (collision.surface != null)
+            {
+                bounceVelocity = collision.surface.CalculateBounce(
+                    preBounceVelocity,
+                    collision.normal,
+                    collision.contactPoint
+                );
+            }
+            else
+            {
+                bounceVelocity = Vector2.Reflect(preBounceVelocity, collision.normal);
+            }
+
+            combinedDirection += bounceVelocity.normalized;
+            maxMagnitude = Mathf.Max(maxMagnitude, bounceVelocity.magnitude);
+            combinedRelativeVelocity += collision.relativeVelocity;
         }
 
-        // Apply rotation based on horizontal velocity change
-        ApplyBounceRotation(collision.relativeVelocity);
+        velocity = combinedDirection.normalized * maxMagnitude;
 
+        ApplyBounceRotation(combinedRelativeVelocity);
         EnsureMinimumVerticalVelocity();
-        velocity = velocity.normalized * speed;
+        EnsureMinimumSpeed();
+
+        pendingCollisions.Clear();
     }
 
     private void ApplyBounceRotation(Vector2 relativeVelocity)
@@ -111,6 +175,15 @@ public class Ball : MonoBehaviour
             // Use a small threshold to avoid sign flipping on near-zero values
             float sign = velocity.y < -0.01f ? -1f : 1f;
             velocity.y = MinVerticalVelocity * sign;
+        }
+    }
+
+    private void EnsureMinimumSpeed()
+    {
+        float currentSpeed = velocity.magnitude;
+        if (currentSpeed < minSpeed)
+        {
+            velocity = velocity.normalized * minSpeed;
         }
     }
 }

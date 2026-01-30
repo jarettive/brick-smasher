@@ -28,9 +28,9 @@ public class Brick : MonoBehaviour
 
     private Image brickImage;
 
-    private static readonly Color LightYellow = new Color(1f, 1f, 0.5f);
-    private static readonly Color Orange = new Color(1f, 0.5f, 0f);
-    private static readonly Color DarkRed = new Color(0.5f, 0f, 0f);
+    private static readonly Color LightYellow = new(1f, 1f, 0.5f);
+    private static readonly Color Orange = new(1f, 0.5f, 0f);
+    private static readonly Color DarkRed = new(0.5f, 0f, 0f);
     private const float MaxPercentageForColor = 200f;
 
     private Rigidbody2D rb;
@@ -140,7 +140,7 @@ public class Brick : MonoBehaviour
 
         // Knockback formula: (Percentage/10) + (Percentage * Damage)/20
         float knockbackForce = (percentage / 10f) + (percentage * damage) / 20f;
-        knockbackVelocity += direction.normalized * knockbackForce * .12f;
+        knockbackVelocity += direction.normalized * knockbackForce * .10f;
     }
 
     private void UpdatePercentageDisplay()

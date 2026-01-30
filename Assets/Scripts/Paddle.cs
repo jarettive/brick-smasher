@@ -30,6 +30,10 @@ public class Paddle : MonoBehaviour
     [SerializeField]
     private float strikeFallSpeed = 8f;
 
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float strikeBoostRatio = 0.5f;
+
     private enum StrikePhase
     {
         Idle,
@@ -42,6 +46,11 @@ public class Paddle : MonoBehaviour
     private bool strikeRequested;
 
     public bool IsStriking => strikePhase == StrikePhase.Rising;
+
+    public Vector2 StrikeVelocity =>
+        strikePhase == StrikePhase.Rising
+            ? new Vector2(0f, strikeUpSpeed * strikeBoostRatio)
+            : Vector2.zero;
 
     public void RequestStrike() => strikeRequested = true;
 
