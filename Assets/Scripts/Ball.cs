@@ -10,6 +10,7 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     public const float MinVerticalVelocity = 1.25f;
+    private const float PaddleCollisionCooldown = 0.1f;
 
     [SerializeField]
     private float minSpeed = 10f;
@@ -31,6 +32,7 @@ public class Ball : MonoBehaviour
     private CircleCollider2D circleCollider;
     private Rigidbody2D rb;
     private bool isLaunched;
+    private float lastPaddleCollisionTime = float.NegativeInfinity;
 
     // Queue collisions to process together and avoid interference
     private struct PendingCollision
@@ -103,12 +105,29 @@ public class Ball : MonoBehaviour
     {
         if (!isLaunched)
             return;
-        // Queue collision for processing - don't modify velocity immediately
-        // This prevents multiple same-frame collisions from interfering
+
         // Use collision.collider to get the actual collider hit (not the rigidbody's gameObject)
         GameObject hitObject = collision.collider.gameObject;
+
+        // Apply cooldown for paddle collisions to prevent rapid repeat bounces
+        bool isPaddle = hitObject.GetComponent<Paddle>() != null;
+        if (isPaddle)
+        {
+            if (Time.time - lastPaddleCollisionTime < PaddleCollisionCooldown)
+                return;
+            lastPaddleCollisionTime = Time.time;
+        }
+
+        // Queue collision for processing - don't modify velocity immediately
+        // This prevents multiple same-frame collisions from interfering
         Surface surface = hitObject.GetComponent<Surface>();
-        bool isWall = hitObject.GetComponent<Brick>() == null;
+        bool isBrick = hitObject.GetComponent<Brick>() != null;
+
+        if (isBrick)
+        {
+            lastPaddleCollisionTime = float.NegativeInfinity;
+        }
+
         pendingCollisions.Add(
             new PendingCollision
             {
@@ -116,7 +135,7 @@ public class Ball : MonoBehaviour
                 contactPoint = collision.contacts[0].point,
                 relativeVelocity = collision.relativeVelocity,
                 surface = surface,
-                isWall = isWall,
+                isWall = !isBrick,
             }
         );
     }
