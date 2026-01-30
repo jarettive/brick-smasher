@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: NeutralBallBehavior
   m_EditorClassIdentifier: 
   pauseDuration: 0.15
-  smashSpeed: 14
+  smashSpeed: 9
   accelerationTime: 0.1

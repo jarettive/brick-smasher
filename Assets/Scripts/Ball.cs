@@ -132,17 +132,22 @@ public class Ball : MonoBehaviour
         ProcessCollisions();
     }
 
+    private void OnEnable()
+    {
+        PlayerController.OnSmashTriggered += Smash;
+    }
+
+    private void OnDisable()
+    {
+        PlayerController.OnSmashTriggered -= Smash;
+    }
+
     private void Update()
     {
         if (!isLaunched)
             return;
 
         props.Behavior?.OnUpdate(this);
-
-        if (InputController.Instance != null && InputController.Instance.IsSmashTriggered())
-        {
-            Smash();
-        }
     }
 
     /// <summary>
