@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -66,6 +67,11 @@ public class Brick : MonoBehaviour
 
     public float Percentage => percentage;
 
+    /// <summary>
+    /// Fired when a brick is knocked out. Parameters: rigidity, knockback velocity.
+    /// </summary>
+    public static event Action<float, Vector2> OnBrickKnockout;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -120,7 +126,7 @@ public class Brick : MonoBehaviour
                         / (MaxKnockbackForShake - MinKnockbackForShake)
                 );
                 float shakeIntensity = shakeT * MaxHitLagShakeIntensity;
-                Vector2 shake = Random.insideUnitCircle * shakeIntensity;
+                Vector2 shake = UnityEngine.Random.insideUnitCircle * shakeIntensity;
                 rb.MovePosition(hitLagPosition + shake);
             }
 
@@ -280,6 +286,7 @@ public class Brick : MonoBehaviour
 
     private void OnKnockout()
     {
+        OnBrickKnockout?.Invoke(rigidity, knockbackVelocity);
         SpawnKnockoutVFX();
         SpawnBall();
         Destroy(gameObject);

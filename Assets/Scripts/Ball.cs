@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -56,6 +57,11 @@ public class Ball : MonoBehaviour
         get => enforceMinSpeed;
         set => enforceMinSpeed = value;
     }
+
+    /// <summary>
+    /// Fired when a ball is lost (enters BlastZone).
+    /// </summary>
+    public static event Action OnBallLost;
 
     /// <summary>
     /// Returns true if a collision occurred this frame. Resets the flag when called.
@@ -231,6 +237,14 @@ public class Ball : MonoBehaviour
             processedThisFrame.Add(hitCollider);
 
             GameObject hitObject = hitCollider.gameObject;
+
+            // Destroyed by BlastZone
+            if (hitObject.layer == LayerMask.NameToLayer(Layers.BlastZone))
+            {
+                OnBallLost?.Invoke();
+                Destroy(gameObject);
+                return;
+            }
 
             // Check if this is a paddle or brick collision
             bool isPaddle = hitObject.layer == LayerMask.NameToLayer(Layers.PaddleSurface);
