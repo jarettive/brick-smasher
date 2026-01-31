@@ -16,8 +16,8 @@ MonoBehaviour:
   fireInterval: 0.3
   projectileDamage: 8
   projectileLifetime: 5
-  projectileSpeed: 3.37
+  projectileSpeed: 3.5
   smashDamage: 35
-  smashLifetime: 0.2
+  smashLifetime: 0.4
   smashSpeed: 6
   smashScale: 3

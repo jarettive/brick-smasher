@@ -63,7 +63,7 @@ public class Projectile : MonoBehaviour
 
         // Rotate to face direction of travel (assuming sprite faces up by default)
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-        // transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
     private void FixedUpdate()
@@ -84,7 +84,7 @@ public class Projectile : MonoBehaviour
         if (other.TryGetComponent<Brick>(out var brick))
         {
             brick.ApplyDamage(damage, direction);
-            Destroy(gameObject);
+            Destroy(gameObject, 4f / 60f);
             return;
         }
     }

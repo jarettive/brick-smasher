@@ -15,7 +15,7 @@ public class Brick : MonoBehaviour
     private float knockbackDecay = 5f;
 
     [SerializeField]
-    private float returnSpeed = 3f;
+    private float returnSpeed = 4f;
 
     [SerializeField]
     private float maxReturnDistance = 5f;
@@ -46,11 +46,23 @@ public class Brick : MonoBehaviour
     private static readonly Color Orange = new(1f, 0.5f, 0f);
     private static readonly Color DarkRed = new(0.5f, 0f, 0f);
     private const float MaxPercentageForColor = 200f;
+    private const float MaxHitLagShakeIntensity = 0.07f;
+    private const float MinKnockbackForShake = 10f;
+    private const float MaxKnockbackForShake = 45f;
+    private const float HitLagKnockbackThreshold = 4.3f;
+    private const int HitLagFramesPerThreshold = 1;
+    private const int MaxHitLagFrames = 12;
 
     private Rigidbody2D rb;
     private float percentage;
     private Vector2 knockbackVelocity;
     private Vector2 originalPosition;
+
+    // Hit lag state
+    private int hitLagFramesRemaining;
+    private Vector2 pendingKnockback;
+    private Vector2 hitLagPosition;
+    private float hitLagKnockbackForce;
 
     public float Percentage => percentage;
 
@@ -95,6 +107,33 @@ public class Brick : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Handle hit lag
+        if (hitLagFramesRemaining > 0)
+        {
+            hitLagFramesRemaining--;
+
+            // Shake around hit lag position (only if knockback force >= MinKnockbackForShake)
+            if (hitLagKnockbackForce >= MinKnockbackForShake)
+            {
+                float shakeT = Mathf.Clamp01(
+                    (hitLagKnockbackForce - MinKnockbackForShake)
+                        / (MaxKnockbackForShake - MinKnockbackForShake)
+                );
+                float shakeIntensity = shakeT * MaxHitLagShakeIntensity;
+                Vector2 shake = Random.insideUnitCircle * shakeIntensity;
+                rb.MovePosition(hitLagPosition + shake);
+            }
+
+            // When hit lag ends, apply pending knockback
+            if (hitLagFramesRemaining == 0)
+            {
+                knockbackVelocity += pendingKnockback;
+                pendingKnockback = Vector2.zero;
+                hitLagKnockbackForce = 0f;
+            }
+            return;
+        }
+
         if (knockbackVelocity.sqrMagnitude > 0.01f)
         {
             rb.MovePosition(rb.position + knockbackVelocity * Time.fixedDeltaTime);
@@ -123,7 +162,7 @@ public class Brick : MonoBehaviour
         float speedMultiplier = 1f + distanceRatio;
         float currentSpeed = returnSpeed * speedMultiplier;
 
-        Vector2 movement = toHome.normalized * currentSpeed * Time.fixedDeltaTime;
+        Vector2 movement = currentSpeed * Time.fixedDeltaTime * toHome.normalized;
 
         // Don't overshoot
         if (movement.magnitude > distance)
@@ -181,8 +220,31 @@ public class Brick : MonoBehaviour
         UpdatePercentageDisplay();
 
         // Knockback formula: (Percentage/10) + (Percentage * Damage)/20
-        float knockbackForce = (percentage / 10f) + (percentage * damage) / 20f;
-        knockbackVelocity += knockbackForce / rigidity * direction.normalized;
+        float knockbackForce = ((percentage / 10f) + (percentage * damage) / 20f) / rigidity;
+        Vector2 knockback = knockbackForce * direction.normalized;
+
+        // Calculate hit lag frames based on knockback force
+        int hitLagFrames =
+            Mathf.FloorToInt(knockbackForce / HitLagKnockbackThreshold) * HitLagFramesPerThreshold;
+
+        if (hitLagFrames > 0)
+        {
+            // Store position and pending knockback for hit lag
+            if (hitLagFramesRemaining == 0)
+            {
+                hitLagPosition = rb.position;
+            }
+            hitLagFramesRemaining = Mathf.Min(
+                hitLagFramesRemaining + hitLagFrames,
+                MaxHitLagFrames
+            );
+            pendingKnockback += knockback;
+            hitLagKnockbackForce += knockbackForce;
+        }
+        else
+        {
+            knockbackVelocity += knockback;
+        }
     }
 
     private void UpdatePercentageDisplay()
