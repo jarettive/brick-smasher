@@ -68,6 +68,11 @@ public class Brick : MonoBehaviour
     public float Percentage => percentage;
 
     /// <summary>
+    /// Fired when a brick spawns.
+    /// </summary>
+    public static event Action OnBrickSpawned;
+
+    /// <summary>
     /// Fired when a brick is knocked out. Parameters: rigidity, knockback velocity.
     /// </summary>
     public static event Action<float, Vector2> OnBrickKnockout;
@@ -109,6 +114,7 @@ public class Brick : MonoBehaviour
     {
         originalPosition = transform.position;
         UpdatePercentageDisplay();
+        OnBrickSpawned?.Invoke();
     }
 
     private void FixedUpdate()
