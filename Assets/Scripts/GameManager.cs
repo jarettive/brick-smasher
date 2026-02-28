@@ -13,7 +13,13 @@ public class GameManager : MonoBehaviour
 
     private const float RestartDelay = 1f;
 
+    [SerializeField]
+    private Difficulty difficulty;
+
     public static event Action OnGameStarted;
+
+    public static float GameSpeed =>
+        Instance != null && Instance.difficulty != null ? Instance.difficulty.GameSpeed : 1f;
 
     private int ballCount;
     private Coroutine restartCoroutine;
@@ -84,6 +90,11 @@ public class GameManager : MonoBehaviour
         {
             RestartGame();
         }
+    }
+
+    public void SetDifficulty(Difficulty newDifficulty)
+    {
+        difficulty = newDifficulty;
     }
 
     public void StartGame()

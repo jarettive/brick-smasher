@@ -173,7 +173,8 @@ public class Ball : StageEntity
         }
 
         // Move the ball
-        Vector2 newPosition = rb.position + stageScale * Time.fixedDeltaTime * velocity;
+        Vector2 newPosition =
+            rb.position + stageScale * GameManager.GameSpeed * Time.fixedDeltaTime * velocity;
         rb.MovePosition(newPosition);
         rb.MoveRotation(rb.rotation + angularVelocity * Time.fixedDeltaTime);
 
