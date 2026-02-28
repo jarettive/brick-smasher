@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(CircleCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
-public class Projectile : MonoBehaviour
+public class Projectile : StageEntity
 {
     [SerializeField]
     private float speed = 15f;
@@ -48,8 +48,9 @@ public class Projectile : MonoBehaviour
         collider.isTrigger = true;
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         spawnTime = Time.time;
     }
 
@@ -69,7 +70,7 @@ public class Projectile : MonoBehaviour
     private void FixedUpdate()
     {
         // Move projectile
-        rb.MovePosition(rb.position + speed * Time.fixedDeltaTime * direction);
+        rb.MovePosition(rb.position + speed * stageScale * Time.fixedDeltaTime * direction);
 
         // Check lifetime
         if (Time.time - spawnTime >= lifetime)

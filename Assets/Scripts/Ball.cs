@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(CircleCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
-public class Ball : MonoBehaviour
+public class Ball : StageEntity
 {
     public const float MinVerticalVelocity = 1.25f;
     private const float PaddleCollisionCooldown = 0.1f;
@@ -98,8 +98,9 @@ public class Ball : MonoBehaviour
         }
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         spawnTime = Time.time;
         float angle = initialLaunchAngle * Mathf.Deg2Rad;
         Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
@@ -174,7 +175,7 @@ public class Ball : MonoBehaviour
         }
 
         // Move the ball
-        Vector2 newPosition = rb.position + velocity * Time.fixedDeltaTime;
+        Vector2 newPosition = rb.position + stageScale * Time.fixedDeltaTime * velocity;
         rb.MovePosition(newPosition);
         rb.MoveRotation(rb.rotation + angularVelocity * Time.fixedDeltaTime);
 

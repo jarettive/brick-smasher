@@ -10,7 +10,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Image))]
-public class Brick : MonoBehaviour
+public class Brick : StageEntity
 {
     [SerializeField]
     private float knockbackDecay = 5f;
@@ -110,8 +110,9 @@ public class Brick : MonoBehaviour
         }
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         originalPosition = transform.position;
         UpdatePercentageDisplay();
         OnBrickSpawned?.Invoke();
@@ -148,7 +149,7 @@ public class Brick : MonoBehaviour
 
         if (knockbackVelocity.sqrMagnitude > 0.01f)
         {
-            rb.MovePosition(rb.position + knockbackVelocity * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + stageScale * Time.fixedDeltaTime * knockbackVelocity);
             knockbackVelocity = Vector2.Lerp(
                 knockbackVelocity,
                 Vector2.zero,
@@ -174,7 +175,7 @@ public class Brick : MonoBehaviour
         float speedMultiplier = 1f + distanceRatio;
         float currentSpeed = returnSpeed * speedMultiplier;
 
-        Vector2 movement = currentSpeed * Time.fixedDeltaTime * toHome.normalized;
+        Vector2 movement = currentSpeed * stageScale * Time.fixedDeltaTime * toHome.normalized;
 
         // Don't overshoot
         if (movement.magnitude > distance)

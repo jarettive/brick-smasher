@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 /// </summary>
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
-public class Paddle : MonoBehaviour
+public class Paddle : StageEntity
 {
     [Header("Movement")]
     [SerializeField]
@@ -76,8 +76,9 @@ public class Paddle : MonoBehaviour
         pointerPressAction = new InputAction("PointerPress", binding: "<Pointer>/press");
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         mainCamera = Camera.main;
     }
 
@@ -119,17 +120,18 @@ public class Paddle : MonoBehaviour
         switch (strikePhase)
         {
             case StrikePhase.Rising:
-                float newYUp = rb.position.y + strikeUpSpeed * Time.deltaTime;
-                if (newYUp >= strikeStartY + strikeDistance)
+                float newYUp = rb.position.y + strikeUpSpeed * stageScale * Time.deltaTime;
+                float strikeTargetY = strikeStartY + strikeDistance * stageScale;
+                if (newYUp >= strikeTargetY)
                 {
-                    newYUp = strikeStartY + strikeDistance;
+                    newYUp = strikeTargetY;
                     strikePhase = StrikePhase.Falling;
                 }
                 rb.MovePosition(new Vector2(rb.position.x, newYUp));
                 break;
 
             case StrikePhase.Falling:
-                float newYDown = rb.position.y - strikeFallSpeed * Time.deltaTime;
+                float newYDown = rb.position.y - strikeFallSpeed * stageScale * Time.deltaTime;
                 if (newYDown <= strikeStartY)
                 {
                     newYDown = strikeStartY;
@@ -189,8 +191,8 @@ public class Paddle : MonoBehaviour
             acceleration * Time.deltaTime
         );
 
-        // Clamp movement to not overshoot target
-        float maxMove = Mathf.Abs(diff);
+        // Clamp movement to not overshoot target (convert world-space diff to local space)
+        float maxMove = Mathf.Abs(diff) / stageScale;
         float actualMove = Mathf.Clamp(currentVelocity * Time.deltaTime, -maxMove, maxMove);
         MoveHorizontal(actualMove);
         return true;
@@ -219,6 +221,9 @@ public class Paddle : MonoBehaviour
     {
         if (Mathf.Approximately(deltaX, 0f))
             return;
+
+        // Scale local-space delta to world space
+        deltaX *= stageScale;
 
         // Move to target position first
         Vector2 targetPos = new(rb.position.x + deltaX, rb.position.y);
