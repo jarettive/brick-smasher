@@ -43,7 +43,7 @@ public class Ball : StageEntity
     private ContactFilter2D contactFilter;
     private readonly Collider2D[] overlapResults = new Collider2D[8];
     private readonly HashSet<Collider2D> processedThisFrame = new();
-    private bool collisionOccurredThisFrame;
+    private readonly List<GameObject> frameCollisions = new();
     private bool isActive = true;
     private bool underSpawn;
     private float underSpawnEndTime;
@@ -69,15 +69,7 @@ public class Ball : StageEntity
     /// </summary>
     public static event Action OnBallLost;
 
-    /// <summary>
-    /// Returns true if a collision occurred this frame. Resets the flag when called.
-    /// </summary>
-    public bool CheckAndClearCollision()
-    {
-        bool result = collisionOccurredThisFrame;
-        collisionOccurredThisFrame = false;
-        return result;
-    }
+    public IReadOnlyList<GameObject> FrameCollisions => frameCollisions;
 
     private void Awake()
     {
@@ -222,6 +214,7 @@ public class Ball : StageEntity
     private void ProcessCollisions()
     {
         processedThisFrame.Clear();
+        frameCollisions.Clear();
 
         int overlapCount = Physics2D.OverlapCollider(circleCollider, contactFilter, overlapResults);
 
@@ -293,6 +286,8 @@ public class Ball : StageEntity
             if (!distance.isOverlapped && distance.distance > 0.01f)
                 continue;
 
+            frameCollisions.Add(hitObject);
+
             Vector2 normal = distance.normal;
             Vector2 contactPoint = distance.pointA;
 
@@ -327,7 +322,6 @@ public class Ball : StageEntity
 
         if (validCollisions > 0)
         {
-            collisionOccurredThisFrame = true;
             velocity = combinedDirection.normalized * maxMagnitude;
             ApplyBounceRotation(combinedRelativeVelocity);
             EnsureMinimumVerticalVelocity();
