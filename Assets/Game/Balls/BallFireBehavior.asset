@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1ff9030cac0f8d4e8a749703b4fb3be, type: 3}
-  m_Name: FireBallBehavior
+  m_Name: BallFireBehavior
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 1638198179414510135, guid: 3652087a808161d40be2007ccdbac429, type: 3}
   fireInterval: 0.3
