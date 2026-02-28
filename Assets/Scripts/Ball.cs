@@ -13,6 +13,7 @@ public class Ball : MonoBehaviour
     public const float MinVerticalVelocity = 1.25f;
     private const float PaddleCollisionCooldown = 0.1f;
     private const float UnderSpawnDuration = 1.5f;
+    private const float BlastZoneImmunityDuration = 0.35f;
 
     [SerializeField]
     private BallProps props;
@@ -42,6 +43,7 @@ public class Ball : MonoBehaviour
     private bool isActive = true;
     private bool underSpawn;
     private float underSpawnEndTime;
+    private float spawnTime;
 
     public Vector2 Velocity
     {
@@ -98,6 +100,7 @@ public class Ball : MonoBehaviour
 
     private void Start()
     {
+        spawnTime = Time.time;
         float angle = initialLaunchAngle * Mathf.Deg2Rad;
         Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
         Launch(direction);
@@ -238,9 +241,12 @@ public class Ball : MonoBehaviour
 
             GameObject hitObject = hitCollider.gameObject;
 
-            // Destroyed by BlastZone
+            // Destroyed by BlastZone (after immunity period)
             if (hitObject.layer == LayerMask.NameToLayer(Layers.BlastZone))
             {
+                if (Time.time - spawnTime < BlastZoneImmunityDuration)
+                    continue;
+
                 OnBallLost?.Invoke();
                 Destroy(gameObject);
                 return;
