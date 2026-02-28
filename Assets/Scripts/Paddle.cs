@@ -185,6 +185,12 @@ public class Paddle : StageEntity
 
         float targetVelocity = Mathf.Sign(diff) * moveSpeed;
 
+        // Immediately stop when reversing direction
+        if (currentVelocity * targetVelocity < 0f)
+        {
+            currentVelocity = 0f;
+        }
+
         // Accelerate towards target velocity
         float acceleration = moveSpeed / accelerationTime;
         currentVelocity = Mathf.MoveTowards(
@@ -210,6 +216,12 @@ public class Paddle : StageEntity
 
         float input = InputController.Instance.GetHorizontalInput();
         float targetVelocity = input * moveSpeed;
+
+        // Immediately stop when reversing direction
+        if (currentVelocity * targetVelocity < 0f)
+        {
+            currentVelocity = 0f;
+        }
 
         // Accelerate towards target velocity
         float acceleration = moveSpeed / accelerationTime;
