@@ -197,7 +197,7 @@ public class Ball : StageEntity
         if (!isActive)
             return;
 
-        props.Behavior?.OnUpdate(this);
+        props.OnUpdate(this);
     }
 
     /// <summary>
@@ -208,7 +208,7 @@ public class Ball : StageEntity
         if (!isActive)
             return;
 
-        props.Behavior?.Smash(this);
+        props.Smash(this);
     }
 
     private void ProcessCollisions()

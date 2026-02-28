@@ -2,10 +2,10 @@ using System.Collections;
 using UnityEngine;
 
 [CreateAssetMenu(
-    fileName = "NeutralBallBehavior",
-    menuName = "Brick Smasher/Behaviors/Neutral Ball"
+    fileName = "NeutralBallProps",
+    menuName = "Brick Smasher/Ball Props/Neutral"
 )]
-public class NeutralBallBehavior : BallBehavior
+public class NeutralBallBehavior : BallProps
 {
     [SerializeField]
     private float pauseDuration = 0.15f;

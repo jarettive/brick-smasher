@@ -5,8 +5,8 @@ using UnityEngine;
 /// Fire ball behavior that shoots projectiles at intervals.
 /// Smash launches a more powerful but short-lasting projectile.
 /// </summary>
-[CreateAssetMenu(fileName = "FireBallBehavior", menuName = "Brick Smasher/Behaviors/Fire Ball")]
-public class FireBallBehavior : BallBehavior
+[CreateAssetMenu(fileName = "FireBallProps", menuName = "Brick Smasher/Ball Props/Fire")]
+public class FireBallBehavior : BallProps
 {
     [Header("Auto Fire")]
     [SerializeField]

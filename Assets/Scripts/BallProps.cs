@@ -16,10 +16,6 @@ public class BallProps : ScriptableObject
     [SerializeField]
     private float damage = 10f;
 
-    [SerializeField]
-    [Tooltip("Optional custom behavior for this ball type")]
-    private BallBehavior behavior;
-
     [Header("Rotation")]
     [SerializeField]
     [Tooltip("If true, ball rotates at a fixed speed regardless of collisions")]
@@ -33,7 +29,9 @@ public class BallProps : ScriptableObject
     public float SpeedDecay => speedDecay;
     public Sprite Sprite => sprite;
     public float Damage => damage;
-    public BallBehavior Behavior => behavior;
     public bool FixedRotation => fixedRotation;
     public float RotationSpeed => rotationSpeed;
+
+    public virtual void OnUpdate(Ball ball) { }
+    public virtual void Smash(Ball ball) { }
 }
