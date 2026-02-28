@@ -96,15 +96,15 @@ public class Paddle : StageEntity
 
     private void Update()
     {
-        UpdateStrike();
+        float targetY = ComputeStrikeY();
 
-        if (!TryTouchMove())
+        if (!TryTouchMove(targetY))
         {
-            Move();
+            Move(targetY);
         }
     }
 
-    private void UpdateStrike()
+    private float ComputeStrikeY()
     {
         // Start strike on input
         if (InputController.Instance != null && InputController.Instance.IsStrikeTriggered())
@@ -116,7 +116,7 @@ public class Paddle : StageEntity
             }
         }
 
-        // Handle strike movement
+        // Compute target Y based on strike phase
         switch (strikePhase)
         {
             case StrikePhase.Rising:
@@ -127,8 +127,7 @@ public class Paddle : StageEntity
                     newYUp = strikeTargetY;
                     strikePhase = StrikePhase.Falling;
                 }
-                rb.MovePosition(new Vector2(rb.position.x, newYUp));
-                break;
+                return newYUp;
 
             case StrikePhase.Falling:
                 float newYDown = rb.position.y - strikeFallSpeed * stageScale * Time.deltaTime;
@@ -137,12 +136,14 @@ public class Paddle : StageEntity
                     newYDown = strikeStartY;
                     strikePhase = StrikePhase.Idle;
                 }
-                rb.MovePosition(new Vector2(rb.position.x, newYDown));
-                break;
+                return newYDown;
+
+            default:
+                return rb.position.y;
         }
     }
 
-    private bool TryTouchMove()
+    private bool TryTouchMove(float targetY)
     {
         if (mainCamera == null)
             return false;
@@ -178,6 +179,7 @@ public class Paddle : StageEntity
         if (Mathf.Abs(diff) < 0.01f)
         {
             currentVelocity = 0f;
+            ApplyMovement(0f, targetY);
             return true;
         }
 
@@ -194,14 +196,17 @@ public class Paddle : StageEntity
         // Clamp movement to not overshoot target (convert world-space diff to local space)
         float maxMove = Mathf.Abs(diff) / stageScale;
         float actualMove = Mathf.Clamp(currentVelocity * Time.deltaTime, -maxMove, maxMove);
-        MoveHorizontal(actualMove);
+        ApplyMovement(actualMove, targetY);
         return true;
     }
 
-    private void Move()
+    private void Move(float targetY)
     {
         if (InputController.Instance == null)
+        {
+            ApplyMovement(0f, targetY);
             return;
+        }
 
         float input = InputController.Instance.GetHorizontalInput();
         float targetVelocity = input * moveSpeed;
@@ -214,19 +219,16 @@ public class Paddle : StageEntity
             acceleration * Time.deltaTime
         );
 
-        MoveHorizontal(currentVelocity * Time.deltaTime);
+        ApplyMovement(currentVelocity * Time.deltaTime, targetY);
     }
 
-    private void MoveHorizontal(float deltaX)
+    private void ApplyMovement(float deltaX, float targetY)
     {
-        if (Mathf.Approximately(deltaX, 0f))
-            return;
-
         // Scale local-space delta to world space
         deltaX *= stageScale;
 
-        // Move to target position first
-        Vector2 targetPos = new(rb.position.x + deltaX, rb.position.y);
+        // Apply X movement and strike Y in a single position update
+        Vector2 targetPos = new(rb.position.x + deltaX, targetY);
         rb.MovePosition(targetPos);
 
         // Check for wall overlap at new position
