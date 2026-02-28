@@ -25,8 +25,12 @@ public class Ball : StageEntity
     private SpriteRenderer spriteRenderer;
 
     [SerializeField]
-    [Tooltip("Initial launch angle in degrees (0 = right, 90 = up)")]
-    private float initialLaunchAngle = 20f;
+    [Tooltip("Minimum launch angle in degrees (0 = right, 90 = up)")]
+    private float minLaunchAngle = 20f;
+
+    [SerializeField]
+    [Tooltip("Maximum launch angle in degrees. If equal to min, uses exact angle.")]
+    private float maxLaunchAngle = 20f;
 
     private Vector2 velocity;
     private Vector2 preBounceVelocity;
@@ -102,7 +106,8 @@ public class Ball : StageEntity
     {
         base.Start();
         spawnTime = Time.time;
-        float angle = initialLaunchAngle * Mathf.Deg2Rad;
+        float launchAngle = UnityEngine.Random.Range(minLaunchAngle, maxLaunchAngle);
+        float angle = launchAngle * Mathf.Deg2Rad;
         Vector2 direction = new(Mathf.Cos(angle), Mathf.Sin(angle));
         Launch(direction);
     }
@@ -134,7 +139,9 @@ public class Ball : StageEntity
             spriteRenderer.sprite = props.Sprite;
         }
 
-        initialLaunchAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        float exact = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        minLaunchAngle = exact;
+        maxLaunchAngle = exact;
     }
 
     /// <summary>

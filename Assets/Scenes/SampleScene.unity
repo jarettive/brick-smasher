@@ -4588,6 +4588,14 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3319942853080331134, guid: 4d2dd019fcc3c2340a62e11771834593, type: 3}
+      propertyPath: maxLaunchAngle
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 3319942853080331134, guid: 4d2dd019fcc3c2340a62e11771834593, type: 3}
+      propertyPath: minLaunchAngle
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 3319942853080331134, guid: 4d2dd019fcc3c2340a62e11771834593, type: 3}
       propertyPath: initialLaunchAngle
       value: 90
       objectReference: {fileID: 0}
