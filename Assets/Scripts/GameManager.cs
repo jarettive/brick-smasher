@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +9,8 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
+    public static event Action OnGameStarted;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
@@ -32,6 +35,12 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         Application.targetFrameRate = 60;
         Time.timeScale = 0f;
+    }
+
+    public void StartGame()
+    {
+        Time.timeScale = 1f;
+        OnGameStarted?.Invoke();
     }
 
     public void ReloadCurrentScene()

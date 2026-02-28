@@ -1,10 +1,8 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
 /// Button that starts the game when clicked.
-/// Sets itself inactive and resumes game time.
 /// </summary>
 [RequireComponent(typeof(Button))]
 public class StartButton : MonoBehaviour
@@ -12,12 +10,11 @@ public class StartButton : MonoBehaviour
     private void Awake()
     {
         GetComponent<Button>().onClick.AddListener(OnClick);
-        Time.timeScale = 0f;
     }
 
     private void OnClick()
     {
-        Time.timeScale = 1f;
+        GameManager.Instance.StartGame();
         gameObject.SetActive(false);
     }
 }

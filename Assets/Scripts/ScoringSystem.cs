@@ -8,6 +8,7 @@ using UnityEngine;
 public class ScoringSystem : MonoBehaviour
 {
     private const string HighScoreKey = "HighScore";
+    private const string BestTimeKey = "BestTime";
 
     [SerializeField]
     private int brickBasePoints = 100;
@@ -18,14 +19,35 @@ public class ScoringSystem : MonoBehaviour
     [SerializeField]
     private float pointsPerVelocity = 2f;
 
+    [Header("Time Bonus")]
+    [SerializeField]
+    [Tooltip("Points awarded per second remaining")]
+    private float timeBonusPerSecond = 10f;
+
+    [SerializeField]
+    [Tooltip("Seconds after which no time bonus is awarded")]
+    private float timeBonusCutoff = 120f;
+
     public static ScoringSystem Instance { get; private set; }
 
     private int score;
+    private int timeBonus;
     private int highScore;
+    private float bestTime;
     private int brickCount;
+    private float startTime;
+    private float finalTime;
+    private bool started;
+    private bool ended;
 
     public int Score => score;
+    public int TimeBonus => timeBonus;
+    public float ElapsedTime =>
+        ended ? finalTime
+        : started ? Time.time - startTime
+        : 0f;
     public int HighScore => highScore;
+    public float BestTime => bestTime;
     public int BrickCount => brickCount;
     public bool IsGameWon => brickCount == 0;
 
@@ -52,6 +74,8 @@ public class ScoringSystem : MonoBehaviour
     private void OnEnable()
     {
         highScore = PlayerPrefs.GetInt(HighScoreKey, 0);
+        bestTime = PlayerPrefs.GetFloat(BestTimeKey, 0f);
+        GameManager.OnGameStarted += HandleGameStarted;
         Brick.OnBrickSpawned += HandleBrickSpawned;
         Brick.OnBrickKnockout += HandleBrickKnockout;
         Ball.OnBallLost += HandleBallLost;
@@ -60,9 +84,16 @@ public class ScoringSystem : MonoBehaviour
 
     private void OnDisable()
     {
+        GameManager.OnGameStarted -= HandleGameStarted;
         Brick.OnBrickSpawned -= HandleBrickSpawned;
         Brick.OnBrickKnockout -= HandleBrickKnockout;
         Ball.OnBallLost -= HandleBallLost;
+    }
+
+    private void HandleGameStarted()
+    {
+        started = true;
+        startTime = Time.time;
     }
 
     private void HandleBrickSpawned()
@@ -88,6 +119,12 @@ public class ScoringSystem : MonoBehaviour
 
         if (brickCount == 0)
         {
+            finalTime = Time.time - startTime;
+            ended = true;
+            AwardTimeBonus();
+            CheckHighScore();
+            CheckBestTime();
+            OnScoreChanged?.Invoke(this);
             OnGameWon?.Invoke();
         }
     }
@@ -99,6 +136,33 @@ public class ScoringSystem : MonoBehaviour
 
         score -= ballLostPenalty;
         OnScoreChanged?.Invoke(this);
+    }
+
+    private void AwardTimeBonus()
+    {
+        float secondsRemaining = timeBonusCutoff - ElapsedTime;
+
+        if (secondsRemaining <= 0f)
+        {
+            timeBonus = 0;
+        }
+        else
+        {
+            timeBonus = Mathf.RoundToInt(timeBonusPerSecond * secondsRemaining);
+        }
+
+        score += timeBonus;
+    }
+
+    private void CheckBestTime()
+    {
+        float elapsed = ElapsedTime;
+        if (bestTime <= 0f || elapsed < bestTime)
+        {
+            bestTime = elapsed;
+            PlayerPrefs.SetFloat(BestTimeKey, bestTime);
+            PlayerPrefs.Save();
+        }
     }
 
     private void CheckHighScore()
@@ -114,7 +178,12 @@ public class ScoringSystem : MonoBehaviour
     public void ResetScore()
     {
         score = 0;
+        timeBonus = 0;
         brickCount = 0;
+        started = false;
+        ended = false;
+        startTime = 0f;
+        finalTime = 0f;
         OnScoreChanged?.Invoke(this);
     }
 }
