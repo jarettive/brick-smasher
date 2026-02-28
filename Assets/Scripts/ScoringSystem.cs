@@ -7,8 +7,8 @@ using UnityEngine;
 /// </summary>
 public class ScoringSystem : MonoBehaviour
 {
-    private const string HighScoreKey = "HighScore";
-    private const string BestTimeKey = "BestTime";
+    private const string HighScorePrefix = "HighScore_";
+    private const string BestTimePrefix = "BestTime_";
 
     [SerializeField]
     private int brickBasePoints = 100;
@@ -73,8 +73,6 @@ public class ScoringSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        highScore = PlayerPrefs.GetInt(HighScoreKey, 0);
-        bestTime = PlayerPrefs.GetFloat(BestTimeKey, 0f);
         GameManager.OnGameStarted += HandleGameStarted;
         Brick.OnBrickSpawned += HandleBrickSpawned;
         Brick.OnBrickKnockout += HandleBrickKnockout;
@@ -94,6 +92,17 @@ public class ScoringSystem : MonoBehaviour
     {
         started = true;
         startTime = Time.time;
+        LoadSavedScores();
+    }
+
+    private string DifficultyKey =>
+        GameManager.Difficulty != null ? GameManager.Difficulty.name : "default";
+
+    private void LoadSavedScores()
+    {
+        highScore = PlayerPrefs.GetInt(HighScorePrefix + DifficultyKey, 0);
+        bestTime = PlayerPrefs.GetFloat(BestTimePrefix + DifficultyKey, 0f);
+        OnScoreChanged?.Invoke(this);
     }
 
     private void HandleBrickSpawned()
@@ -160,7 +169,7 @@ public class ScoringSystem : MonoBehaviour
         if (bestTime <= 0f || elapsed < bestTime)
         {
             bestTime = elapsed;
-            PlayerPrefs.SetFloat(BestTimeKey, bestTime);
+            PlayerPrefs.SetFloat(BestTimePrefix + DifficultyKey, bestTime);
             PlayerPrefs.Save();
         }
     }
@@ -170,7 +179,7 @@ public class ScoringSystem : MonoBehaviour
         if (score > highScore)
         {
             highScore = score;
-            PlayerPrefs.SetInt(HighScoreKey, highScore);
+            PlayerPrefs.SetInt(HighScorePrefix + DifficultyKey, highScore);
             PlayerPrefs.Save();
         }
     }

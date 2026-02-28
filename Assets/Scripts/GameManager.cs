@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
 
     public static event Action OnGameStarted;
 
+    public static Difficulty Difficulty => Instance != null ? Instance.difficulty : null;
+
     public static float GameSpeed =>
         Instance != null && Instance.difficulty != null ? Instance.difficulty.GameSpeed : 1f;
 
