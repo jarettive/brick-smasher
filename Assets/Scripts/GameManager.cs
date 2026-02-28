@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,7 +11,12 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    private const float RestartDelay = 1f;
+
     public static event Action OnGameStarted;
+
+    private int ballCount;
+    private Coroutine restartCoroutine;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
@@ -37,14 +43,60 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
+    private void OnEnable()
+    {
+        Ball.OnBallSpawned += HandleBallSpawned;
+        Ball.OnBallLost += HandleBallLost;
+    }
+
+    private void OnDisable()
+    {
+        Ball.OnBallSpawned -= HandleBallSpawned;
+        Ball.OnBallLost -= HandleBallLost;
+    }
+
+    private void HandleBallSpawned()
+    {
+        ballCount++;
+
+        if (restartCoroutine != null)
+        {
+            StopCoroutine(restartCoroutine);
+            restartCoroutine = null;
+        }
+    }
+
+    private void HandleBallLost()
+    {
+        ballCount--;
+
+        if (ballCount <= 0)
+        {
+            restartCoroutine = StartCoroutine(RestartAfterDelay());
+        }
+    }
+
+    private IEnumerator RestartAfterDelay()
+    {
+        yield return new WaitForSeconds(RestartDelay);
+
+        if (ballCount <= 0)
+        {
+            RestartGame();
+        }
+    }
+
     public void StartGame()
     {
         Time.timeScale = 1f;
         OnGameStarted?.Invoke();
     }
 
-    public void ReloadCurrentScene()
+    public void RestartGame()
     {
+        ballCount = 0;
+        restartCoroutine = null;
+        Time.timeScale = 0f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

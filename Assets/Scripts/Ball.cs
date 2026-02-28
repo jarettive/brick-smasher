@@ -64,9 +64,7 @@ public class Ball : StageEntity
         set => enforceMinSpeed = value;
     }
 
-    /// <summary>
-    /// Fired when a ball is lost (enters BlastZone).
-    /// </summary>
+    public static event Action OnBallSpawned;
     public static event Action OnBallLost;
 
     public IReadOnlyList<GameObject> FrameCollisions => frameCollisions;
@@ -97,6 +95,7 @@ public class Ball : StageEntity
     protected override void Start()
     {
         base.Start();
+        OnBallSpawned?.Invoke();
         spawnTime = Time.time;
         float launchAngle = UnityEngine.Random.Range(minLaunchAngle, maxLaunchAngle);
         float angle = launchAngle * Mathf.Deg2Rad;

@@ -14,6 +14,6 @@ public class RetryButton : MonoBehaviour
 
     private void OnClick()
     {
-        GameManager.Instance?.ReloadCurrentScene();
+        GameManager.Instance?.RestartGame();
     }
 }
