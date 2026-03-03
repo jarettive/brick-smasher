@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "BallProps", menuName = "Brick Smasher/Ball Props")]
 public class BallProps : ScriptableObject
 {
     [SerializeField]

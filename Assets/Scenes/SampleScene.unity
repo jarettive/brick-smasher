@@ -4194,11 +4194,11 @@ PrefabInstance:
     - target: {fileID: 5107279910671040902, guid: 160ef82436967244b9dd540b1d4814f2, type: 3}
       propertyPath: ballProps
       value: 
-      objectReference: {fileID: 11400000, guid: b071c0e50a771bb429e31300254617c0, type: 2}
+      objectReference: {fileID: 11400000, guid: b8d28f9a72ccf924d891f0e84e1878b6, type: 2}
     - target: {fileID: 6668279966069620500, guid: 160ef82436967244b9dd540b1d4814f2, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 47e073c4d2e181f4eb2d049a8dba4e4d, type: 3}
+      objectReference: {fileID: 652072953208990799, guid: 69e7f1742e385d849a57315ee0ad15a7, type: 3}
     - target: {fileID: 6668279966069620500, guid: 160ef82436967244b9dd540b1d4814f2, type: 3}
       propertyPath: m_Enabled
       value: 1
