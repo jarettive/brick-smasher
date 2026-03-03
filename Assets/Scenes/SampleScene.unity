@@ -4194,7 +4194,7 @@ PrefabInstance:
     - target: {fileID: 5107279910671040902, guid: 160ef82436967244b9dd540b1d4814f2, type: 3}
       propertyPath: ballProps
       value: 
-      objectReference: {fileID: 11400000, guid: 7f74183b8d481dd4d975e50d8cdb80d3, type: 2}
+      objectReference: {fileID: 11400000, guid: b071c0e50a771bb429e31300254617c0, type: 2}
     - target: {fileID: 6668279966069620500, guid: 160ef82436967244b9dd540b1d4814f2, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -5382,7 +5382,7 @@ PrefabInstance:
     - target: {fileID: 5107279910671040902, guid: 160ef82436967244b9dd540b1d4814f2, type: 3}
       propertyPath: ballProps
       value: 
-      objectReference: {fileID: 11400000, guid: 1b2eb70cb6799d141b50e12bf168f734, type: 2}
+      objectReference: {fileID: 11400000, guid: 44555e4fae43ee94b9ed6b3e6ce8c098, type: 2}
     - target: {fileID: 6668279966069620500, guid: 160ef82436967244b9dd540b1d4814f2, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -5767,12 +5767,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2966803758665163566, guid: 4d2dd019fcc3c2340a62e11771834593, type: 3}
       propertyPath: m_Name
-      value: Ball
+      value: StartingBall
       objectReference: {fileID: 0}
     - target: {fileID: 3319942853080331134, guid: 4d2dd019fcc3c2340a62e11771834593, type: 3}
       propertyPath: props
       value: 
-      objectReference: {fileID: 11400000, guid: 7f74183b8d481dd4d975e50d8cdb80d3, type: 2}
+      objectReference: {fileID: 11400000, guid: b071c0e50a771bb429e31300254617c0, type: 2}
     - target: {fileID: 3319942853080331134, guid: 4d2dd019fcc3c2340a62e11771834593, type: 3}
       propertyPath: speed
       value: 5.4

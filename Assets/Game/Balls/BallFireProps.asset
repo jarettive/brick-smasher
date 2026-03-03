@@ -9,21 +9,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1ff9030cac0f8d4e8a749703b4fb3be, type: 3}
-  m_Name: BallFire
+  m_Script: {fileID: 11500000, guid: aa1c15b486fad26458c7ee0741953f03, type: 3}
+  m_Name: BallFireProps
   m_EditorClassIdentifier: 
   minSpeed: 5
   speedDecay: 5
   sprite: {fileID: 21300000, guid: c44506adc9eb7cb49be461537942ceda, type: 3}
-  damage: 8
+  collisionDamage: 3.2
   fixedRotation: 1
   rotationSpeed: 180
   projectilePrefab: {fileID: 1638198179414510135, guid: 3652087a808161d40be2007ccdbac429, type: 3}
   fireInterval: 0.3
-  projectileDamage: 8
+  projectileDamage: 10
+  projectileBaseKnockback: 10
+  projectileKnockbackScaling: 0.1
   projectileLifetime: 5
-  projectileSpeed: 3.5
-  smashDamage: 35
-  smashLifetime: 0.4
+  projectileSpeed: 4
+  smashDamage: 30
+  smashBaseKnockback: 20
+  smashKnockbackScaling: 1
+  smashLifetime: 0.5
   smashSpeed: 6
-  smashScale: 3
+  smashScale: 4

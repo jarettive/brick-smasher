@@ -1,11 +1,8 @@
 using System.Collections;
 using UnityEngine;
 
-[CreateAssetMenu(
-    fileName = "NeutralBallProps",
-    menuName = "Brick Smasher/Ball Props/Neutral"
-)]
-public class NeutralBallBehavior : BallProps
+[CreateAssetMenu(fileName = "BallNeutralProps", menuName = "Brick Smasher/Balls/Neutral")]
+public class BallNeutralProps : BallProps
 {
     [SerializeField]
     private float pauseDuration = 0.15f;

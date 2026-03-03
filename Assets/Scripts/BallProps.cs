@@ -4,7 +4,7 @@ using UnityEngine;
 public class BallProps : ScriptableObject
 {
     [SerializeField]
-    private float minSpeed = 10f;
+    private float minSpeed = 5f;
 
     [SerializeField]
     [Tooltip("Speed decay per second toward minSpeed")]
@@ -14,7 +14,7 @@ public class BallProps : ScriptableObject
     private Sprite sprite;
 
     [SerializeField]
-    private float damage = 10f;
+    private float collisionDamage = 3.6f;
 
     [Header("Rotation")]
     [SerializeField]
@@ -28,10 +28,11 @@ public class BallProps : ScriptableObject
     public float MinSpeed => minSpeed;
     public float SpeedDecay => speedDecay;
     public Sprite Sprite => sprite;
-    public float Damage => damage;
+    public float Damage => collisionDamage;
     public bool FixedRotation => fixedRotation;
     public float RotationSpeed => rotationSpeed;
 
     public virtual void OnUpdate(Ball ball) { }
+
     public virtual void Smash(Ball ball) { }
 }

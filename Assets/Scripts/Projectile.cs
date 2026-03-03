@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 /// <summary>
-/// A projectile that moves in a direction and damages bricks on contact.
+/// A projectile that moves in a direction.
+/// Collision behavior is determined by the callback set by the spawner.
 /// </summary>
 [RequireComponent(typeof(CircleCollider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -11,20 +13,15 @@ public class Projectile : StageEntity
     private float speed = 15f;
 
     [SerializeField]
-    private float damage = 20f;
-
-    [SerializeField]
     private float lifetime = 3f;
 
     private Rigidbody2D rb;
     private Vector2 direction;
     private float spawnTime;
 
-    public float Damage
-    {
-        get => damage;
-        set => damage = value;
-    }
+    public Action<Projectile, Brick> OnBrickCollision { get; set; }
+
+    public Vector2 Direction => direction;
 
     public float Lifetime
     {
@@ -81,12 +78,10 @@ public class Projectile : StageEntity
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Damage bricks
         if (other.TryGetComponent<Brick>(out var brick))
         {
-            brick.ApplyDamage(damage, direction);
+            OnBrickCollision?.Invoke(this, brick);
             Destroy(gameObject, 4f / 60f);
-            return;
         }
     }
 }

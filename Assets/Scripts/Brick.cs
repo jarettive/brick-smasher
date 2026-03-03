@@ -217,24 +217,27 @@ public class Brick : StageEntity
             return;
 
         Vector2 ballVelocity = ball.PreBounceVelocity;
-        float damage = ballVelocity.magnitude * 3.6f;
-        Vector2 knockbackDirection = (ballVelocity.normalized + normal).normalized;
-        ApplyDamage(damage, knockbackDirection);
+        float damage = ballVelocity.magnitude * ball.Damage;
+        ReceiveAttack(
+            new Attack
+            {
+                Damage = damage,
+                BaseKnockback = 0f,
+                KnockbackScaling = 1f,
+                Direction = (ballVelocity.normalized + normal).normalized,
+            }
+        );
     }
 
-    /// <summary>
-    /// Apply damage to the brick and knock it back.
-    /// </summary>
-    /// <param name="damage">Amount of damage to apply</param>
-    /// <param name="direction">Direction of the knockback (normalized)</param>
-    public void ApplyDamage(float damage, Vector2 direction)
+    public void ReceiveAttack(Attack attack)
     {
-        percentage += damage;
+        percentage += attack.Damage;
         UpdatePercentageDisplay();
 
-        // Knockback formula: (Percentage/10) + (Percentage * Damage)/20
-        float knockbackForce = ((percentage / 10f) + (percentage * damage) / 20f) / rigidity;
-        Vector2 knockback = knockbackForce * direction.normalized;
+        float scaledKnockback =
+            attack.KnockbackScaling * ((percentage / 10f) + (percentage * attack.Damage) / 20f);
+        float knockbackForce = (attack.BaseKnockback + scaledKnockback) / rigidity;
+        Vector2 knockback = knockbackForce * attack.Direction.normalized;
 
         // Calculate hit lag frames based on knockback force
         int hitLagFrames =
