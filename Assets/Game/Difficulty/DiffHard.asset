@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db93dfdc1cdd18b4d8dac2757a0ed97e, type: 3}
   m_Name: DiffHard
   m_EditorClassIdentifier: 
-  gameSpeed: 1.2
+  gameSpeed: 1.25
