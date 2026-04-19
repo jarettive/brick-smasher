@@ -49,6 +49,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbe3e1dfc40d8414ca1529db15b3958b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitCooldown: 1
+  bladeSpriteRenderer: {fileID: 0}
+  fadeInDuration: 0.1166667
+  fadeOutDuration: 0.1166667
 --- !u!1 &8904666041439868712
 GameObject:
   m_ObjectHideFlags: 0

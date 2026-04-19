@@ -152,7 +152,7 @@ public class BallSwordProps : BallProps
         }
         if (state.activeSword != null)
         {
-            Destroy(state.activeSword.gameObject);
+            state.activeSword.FadeOutAndDestroy();
             state.activeSword = null;
         }
 
@@ -203,7 +203,7 @@ public class BallSwordProps : BallProps
             yield return new WaitForSeconds(swingWindDown);
 
         if (sword != null)
-            Destroy(sword.gameObject);
+            sword.FadeOutAndDestroy();
 
         state.activeSword = null;
         state.activeRoutine = null;
@@ -240,7 +240,7 @@ public class BallSwordProps : BallProps
             yield return new WaitForSeconds(swingWindDown);
 
         if (sword != null)
-            Destroy(sword.gameObject);
+            sword.FadeOutAndDestroy();
 
         state.activeSword = null;
         state.activeRoutine = null;
