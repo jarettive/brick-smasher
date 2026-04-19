@@ -60,6 +60,23 @@ public class BallSwordProps : BallProps
     [Tooltip("Ball movement is scaled by this value during a Smash (e.g. 0.1667 = 1/6 speed)")]
     private float smashSpeedMultiplier = 1f / 6f;
 
+    [Header("Damage Scaling")]
+    [SerializeField]
+    [Tooltip("Damage multiplier at or below damageScalingMinSpeed")]
+    private float damageMultiplierMin = 0.8f;
+
+    [SerializeField]
+    [Tooltip("Damage multiplier at or above damageScalingMaxSpeed")]
+    private float damageMultiplierMax = 1.4f;
+
+    [SerializeField]
+    [Tooltip("Ball speed at which damageMultiplierMin applies")]
+    private float damageScalingMinSpeed = 4f;
+
+    [SerializeField]
+    [Tooltip("Ball speed at which damageMultiplierMax applies")]
+    private float damageScalingMaxSpeed = 10f;
+
     private class SwordState
     {
         public float lastSwingTime;
@@ -107,7 +124,7 @@ public class BallSwordProps : BallProps
 
         var attack = new Attack
         {
-            Damage = swingDamage,
+            Damage = swingDamage * GetDamageMultiplier(ball.Velocity.magnitude),
             BaseKnockback = swingBaseKnockback,
             KnockbackScaling = swingKnockbackScaling,
         };
@@ -143,7 +160,7 @@ public class BallSwordProps : BallProps
 
         var attack = new Attack
         {
-            Damage = smashDamage,
+            Damage = smashDamage * GetDamageMultiplier(ball.Velocity.magnitude),
             BaseKnockback = smashBaseKnockback,
             KnockbackScaling = smashKnockbackScaling,
         };
@@ -247,6 +264,12 @@ public class BallSwordProps : BallProps
         };
 
         return sword;
+    }
+
+    private float GetDamageMultiplier(float speed)
+    {
+        float t = Mathf.InverseLerp(damageScalingMinSpeed, damageScalingMaxSpeed, speed);
+        return Mathf.Lerp(damageMultiplierMin, damageMultiplierMax, t);
     }
 
     private static Brick FindNearestBrick(Vector3 position)

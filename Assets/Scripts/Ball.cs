@@ -32,7 +32,15 @@ public class Ball : StageEntity
     [Tooltip("Maximum launch angle in degrees. If equal to min, uses exact angle.")]
     private float maxLaunchAngle = 20f;
 
+    [Header("Debug (updates live in Play Mode)")]
+    [SerializeField]
     private Vector2 velocity;
+
+#pragma warning disable 0414
+    [SerializeField]
+    private float speed;
+#pragma warning restore 0414
+
     private Vector2 preBounceVelocity;
     private float angularVelocity;
     private CircleCollider2D circleCollider;
@@ -158,6 +166,7 @@ public class Ball : StageEntity
             underSpawn = false;
         }
 
+        speed = velocity.magnitude;
         preBounceVelocity = velocity;
 
         // Decay speed toward minSpeed
