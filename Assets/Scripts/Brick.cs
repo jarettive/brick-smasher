@@ -321,9 +321,7 @@ public class Brick : StageEntity
             direction = Vector2.down;
         }
 
-        // Find Stage parent
-        GameObject stageObj = GameObject.Find("Stage");
-        Transform parent = stageObj != null ? stageObj.transform : null;
+        Transform parent = Stage.Instance != null ? Stage.Instance.transform : null;
 
         Ball ball = Instantiate(ballPrefab, transform.position, Quaternion.identity, parent);
         ball.Initialize(ballProps, direction, startInactive: true);
