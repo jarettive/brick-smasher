@@ -50,13 +50,12 @@ public class StageButton : MonoBehaviour
 
     private void RefreshColor()
     {
+        if (button.targetGraphic == null)
+            return;
+
         bool isActive =
             StageManager.Instance != null && StageManager.Instance.ActiveStagePrefab == stagePrefab;
 
-        ColorBlock colors = button.colors;
-        Color target = isActive ? activeColor : inactiveColor;
-        colors.normalColor = target;
-        colors.selectedColor = target;
-        button.colors = colors;
+        button.targetGraphic.color = isActive ? activeColor : inactiveColor;
     }
 }

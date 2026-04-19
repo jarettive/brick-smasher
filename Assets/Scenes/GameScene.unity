@@ -956,6 +956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   difficulty: {fileID: 11400000, guid: 53ec384f5ec01cb4f807350e1c917766, type: 2}
+  startDelay: 0.1
 --- !u!114 &344243902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -979,9 +980,9 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0, g: 0.8784314, b: 1, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1013,7 +1014,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6571431, g: 1, b: 0.6393324, a: 1}
+  m_Color: {r: 0.42352942, g: 0.9882353, b: 0.39607844, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2086,6 +2087,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   difficulty: {fileID: 11400000, guid: 5bd1cccb2628a0943be8ec29858be27b, type: 2}
+  startDelay: 0.1
 --- !u!114 &673878119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2109,9 +2111,9 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0, g: 0.8784314, b: 1, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -2143,7 +2145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6571431, g: 1, b: 0.6393324, a: 1}
+  m_Color: {r: 0.42352942, g: 0.9882353, b: 0.39607844, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3434,6 +3436,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   difficulty: {fileID: 11400000, guid: afb0598d5062e2e4fa621102640361f3, type: 2}
+  startDelay: 0.1
 --- !u!114 &1539989276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3457,9 +3460,9 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0, g: 0.8784314, b: 1, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -3491,7 +3494,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6571431, g: 1, b: 0.6393324, a: 1}
+  m_Color: {r: 0.42352942, g: 0.9882353, b: 0.39607844, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4756,6 +4759,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.b
+      value: 0.39607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.g
+      value: 0.9882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.r
+      value: 0.42352942
+      objectReference: {fileID: 0}
     - target: {fileID: 7526857034435224156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
       propertyPath: m_text
       value: Stage 3
@@ -4768,6 +4783,18 @@ PrefabInstance:
       propertyPath: stagePrefab
       value: 
       objectReference: {fileID: 727812432293711871, guid: 9f469cd60641b8f43b9a9db616f37e59, type: 3}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.b
+      value: 0.39607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.g
+      value: 0.9882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.r
+      value: 0.42352942
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5014,6 +5041,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.b
+      value: 0.39607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.g
+      value: 0.9882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.r
+      value: 0.42352942
+      objectReference: {fileID: 0}
     - target: {fileID: 7526857034435224156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
       propertyPath: m_text
       value: Stage 2
@@ -5026,6 +5065,18 @@ PrefabInstance:
       propertyPath: stagePrefab
       value: 
       objectReference: {fileID: 6977352195032099206, guid: d8364369d5a415f4e88e0162d80778d1, type: 3}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.b
+      value: 0.39607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.g
+      value: 0.9882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.r
+      value: 0.42352942
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5123,10 +5174,34 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.b
+      value: 0.39607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.g
+      value: 0.9882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 5909710133679673643, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: m_Color.r
+      value: 0.42352942
+      objectReference: {fileID: 0}
     - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
       propertyPath: stagePrefab
       value: 
       objectReference: {fileID: 7386605836000188255, guid: 2157e989cf3d6dd4793552df488745dc, type: 3}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.b
+      value: 0.39607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.g
+      value: 0.9882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 8601720113969914156, guid: 8bb013b47c40a6a4dbbdb2ca153758b2, type: 3}
+      propertyPath: inactiveColor.r
+      value: 0.42352942
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

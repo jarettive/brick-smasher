@@ -19,9 +19,9 @@ MonoBehaviour:
   fixedRotation: 0
   rotationSpeed: 360
   swordPrefab: {fileID: 3503108734081624745, guid: e8b1a27454a007b4da808bbc56845de8, type: 3}
-  swingInterval: 1.3
+  swingInterval: 1.15
   firstSwingInterval: 0.5
-  swingDamage: 20
+  swingDamage: 17
   swingBaseKnockback: 35
   swingKnockbackScaling: 0.45
   swingDuration: 0.2
