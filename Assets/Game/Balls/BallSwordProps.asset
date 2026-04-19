@@ -34,3 +34,7 @@ MonoBehaviour:
   smashDuration: 1.4
   smashRevolutions: 4
   smashSpeedMultiplier: 0.25
+  damageMultiplierMin: 0.85
+  damageMultiplierMax: 1.4
+  damageScalingMinSpeed: 4
+  damageScalingMaxSpeed: 10
