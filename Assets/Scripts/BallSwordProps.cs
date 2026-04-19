@@ -14,6 +14,10 @@ public class BallSwordProps : BallProps
     private float swingInterval = 1.5f;
 
     [SerializeField]
+    [Tooltip("Delay before the very first swing. Subsequent swings use swingInterval.")]
+    private float firstSwingInterval = 0.5f;
+
+    [SerializeField]
     private float swingDamage = 15f;
 
     [SerializeField]
@@ -52,9 +56,14 @@ public class BallSwordProps : BallProps
     [SerializeField]
     private float smashRevolutions = 1f;
 
+    [SerializeField]
+    [Tooltip("Ball movement is scaled by this value during a Smash (e.g. 0.1667 = 1/6 speed)")]
+    private float smashSpeedMultiplier = 1f / 6f;
+
     private class SwordState
     {
         public float lastSwingTime;
+        public bool hasSwung;
         public bool isSmashing;
         public Sword activeSword;
         public Coroutine activeRoutine;
@@ -82,7 +91,8 @@ public class BallSwordProps : BallProps
         if (state.isSmashing)
             return;
 
-        if (Time.time - state.lastSwingTime < swingInterval)
+        float interval = state.hasSwung ? swingInterval : firstSwingInterval;
+        if (Time.time - state.lastSwingTime < interval)
             return;
 
         Brick nearest = FindNearestBrick(ball.transform.position);
@@ -90,6 +100,7 @@ public class BallSwordProps : BallProps
             return;
 
         state.lastSwingTime = Time.time;
+        state.hasSwung = true;
 
         Vector2 toBrick = (Vector2)nearest.transform.position - (Vector2)ball.transform.position;
         float dirAngle = Mathf.Atan2(toBrick.y, toBrick.x) * Mathf.Rad2Deg - 90f;
@@ -183,9 +194,7 @@ public class BallSwordProps : BallProps
 
     private IEnumerator SmashRoutine(Ball ball, SwordState state, Attack attack)
     {
-        Vector2 savedVelocity = ball.Velocity;
-        ball.EnforceMinSpeed = false;
-        ball.Velocity = Vector2.zero;
+        ball.MoveSpeedMultiplier = smashSpeedMultiplier;
 
         Sword sword = SpawnSword(ball, attack, 0f);
         state.activeSword = sword;
@@ -219,8 +228,7 @@ public class BallSwordProps : BallProps
         state.activeSword = null;
         state.activeRoutine = null;
         state.isSmashing = false;
-        ball.EnforceMinSpeed = true;
-        ball.Velocity = savedVelocity;
+        ball.MoveSpeedMultiplier = 1f;
     }
 
     private Sword SpawnSword(Ball ball, Attack attack, float initialAngle)

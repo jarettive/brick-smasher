@@ -64,6 +64,8 @@ public class Ball : StageEntity
         set => enforceMinSpeed = value;
     }
 
+    public float MoveSpeedMultiplier { get; set; } = 1f;
+
     public static event Action OnBallSpawned;
     public static event Action OnBallLost;
 
@@ -174,7 +176,12 @@ public class Ball : StageEntity
 
         // Move the ball
         Vector2 newPosition =
-            rb.position + stageScale * GameManager.GameSpeed * Time.fixedDeltaTime * velocity;
+            rb.position
+            + stageScale
+                * GameManager.GameSpeed
+                * MoveSpeedMultiplier
+                * Time.fixedDeltaTime
+                * velocity;
         rb.MovePosition(newPosition);
         rb.MoveRotation(rb.rotation + angularVelocity * Time.fixedDeltaTime);
 

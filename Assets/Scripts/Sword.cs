@@ -4,25 +4,24 @@ using UnityEngine;
 
 /// <summary>
 /// Sword hitbox that detects brick collisions during a swing.
-/// Each brick is only hit once per swing.
+/// The same brick can only be hit again after the cooldown has elapsed.
 /// </summary>
 public class Sword : MonoBehaviour
 {
-    private readonly HashSet<Brick> hitBricks = new();
+    [SerializeField]
+    [Tooltip("Seconds that must pass before the same brick can be hit again")]
+    private float hitCooldown = 1f;
+
+    private readonly Dictionary<Brick, float> lastHitTimes = new();
 
     public Action<Sword, Brick> OnBrickCollision { get; set; }
 
     public void HandleBrickCollision(Brick brick)
     {
-        if (hitBricks.Contains(brick))
+        if (lastHitTimes.TryGetValue(brick, out float lastHit) && Time.time - lastHit < hitCooldown)
             return;
 
-        hitBricks.Add(brick);
+        lastHitTimes[brick] = Time.time;
         OnBrickCollision?.Invoke(this, brick);
-    }
-
-    public void ResetHitTracking()
-    {
-        hitBricks.Clear();
     }
 }
