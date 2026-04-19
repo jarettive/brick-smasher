@@ -73,9 +73,9 @@ public class Brick : StageEntity
     public static event Action OnBrickSpawned;
 
     /// <summary>
-    /// Fired when a brick is knocked out. Parameters: rigidity, knockback velocity.
+    /// Fired when a brick is destroyed. Parameters: rigidity, knockback velocity.
     /// </summary>
-    public static event Action<float, Vector2> OnBrickKnockout;
+    public static event Action<float, Vector2> OnBrickDestroy;
 
     private void Awake()
     {
@@ -296,10 +296,14 @@ public class Brick : StageEntity
 
     private void OnKnockout()
     {
-        OnBrickKnockout?.Invoke(rigidity, knockbackVelocity);
         SpawnKnockoutVFX();
         SpawnBall();
         Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        OnBrickDestroy?.Invoke(rigidity, knockbackVelocity);
     }
 
     private void SpawnBall()

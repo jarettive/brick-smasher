@@ -75,7 +75,7 @@ public class ScoringSystem : MonoBehaviour
     {
         GameManager.OnGameStarted += HandleGameStarted;
         Brick.OnBrickSpawned += HandleBrickSpawned;
-        Brick.OnBrickKnockout += HandleBrickKnockout;
+        Brick.OnBrickDestroy += HandleBrickDestroy;
         Ball.OnBallLost += HandleBallLost;
         OnScoreChanged?.Invoke(this);
     }
@@ -84,7 +84,7 @@ public class ScoringSystem : MonoBehaviour
     {
         GameManager.OnGameStarted -= HandleGameStarted;
         Brick.OnBrickSpawned -= HandleBrickSpawned;
-        Brick.OnBrickKnockout -= HandleBrickKnockout;
+        Brick.OnBrickDestroy -= HandleBrickDestroy;
         Ball.OnBallLost -= HandleBallLost;
     }
 
@@ -137,7 +137,7 @@ public class ScoringSystem : MonoBehaviour
         brickCount++;
     }
 
-    private void HandleBrickKnockout(float rigidity, Vector2 knockbackVelocity)
+    private void HandleBrickDestroy(float rigidity, Vector2 knockbackVelocity)
     {
         brickCount--;
 
