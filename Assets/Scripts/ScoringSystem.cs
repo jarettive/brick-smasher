@@ -93,6 +93,26 @@ public class ScoringSystem : MonoBehaviour
         started = true;
         startTime = Time.time;
         LoadSavedScores();
+
+        timeBonus = Mathf.RoundToInt(timeBonusPerSecond * timeBonusCutoff);
+        score += timeBonus;
+        OnScoreChanged?.Invoke(this);
+    }
+
+    private void Update()
+    {
+        if (!started || ended)
+            return;
+
+        float remaining = timeBonusCutoff - (Time.time - startTime);
+        int newBonus = remaining > 0f ? Mathf.RoundToInt(timeBonusPerSecond * remaining) : 0;
+
+        if (newBonus != timeBonus)
+        {
+            score += newBonus - timeBonus;
+            timeBonus = newBonus;
+            OnScoreChanged?.Invoke(this);
+        }
     }
 
     private string DifficultyKey =>
@@ -130,8 +150,6 @@ public class ScoringSystem : MonoBehaviour
         {
             finalTime = Time.time - startTime;
             ended = true;
-            AwardTimeBonus();
-            CheckHighScore();
             CheckBestTime();
             OnScoreChanged?.Invoke(this);
             OnGameWon?.Invoke();
@@ -145,22 +163,6 @@ public class ScoringSystem : MonoBehaviour
 
         score -= ballLostPenalty;
         OnScoreChanged?.Invoke(this);
-    }
-
-    private void AwardTimeBonus()
-    {
-        float secondsRemaining = timeBonusCutoff - ElapsedTime;
-
-        if (secondsRemaining <= 0f)
-        {
-            timeBonus = 0;
-        }
-        else
-        {
-            timeBonus = Mathf.RoundToInt(timeBonusPerSecond * secondsRemaining);
-        }
-
-        score += timeBonus;
     }
 
     private void CheckBestTime()
