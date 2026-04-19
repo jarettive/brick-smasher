@@ -66,7 +66,6 @@ public class GameManager : MonoBehaviour
     private void HandleBallSpawned()
     {
         ballCount++;
-        Debug.Log($"Ball spawned. Total balls: {ballCount}");
         if (restartCoroutine != null)
         {
             StopCoroutine(restartCoroutine);
@@ -107,7 +106,6 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
-        ballCount = 0;
         restartCoroutine = null;
         Time.timeScale = 0f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

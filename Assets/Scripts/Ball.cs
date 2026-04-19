@@ -83,6 +83,7 @@ public class Ball : StageEntity
     {
         circleCollider = GetComponent<CircleCollider2D>();
         rb = GetComponent<Rigidbody2D>();
+        OnBallSpawned?.Invoke();
 
         rb.bodyType = RigidbodyType2D.Kinematic;
 
@@ -105,7 +106,6 @@ public class Ball : StageEntity
     protected override void Start()
     {
         base.Start();
-        OnBallSpawned?.Invoke();
         spawnTime = Time.time;
         float launchAngle = UnityEngine.Random.Range(minLaunchAngle, maxLaunchAngle);
         float angle = launchAngle * Mathf.Deg2Rad;
