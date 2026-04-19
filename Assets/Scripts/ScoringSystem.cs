@@ -118,10 +118,17 @@ public class ScoringSystem : MonoBehaviour
     private string DifficultyKey =>
         GameManager.Difficulty != null ? GameManager.Difficulty.name : "default";
 
+    private string StageKey =>
+        StageManager.Instance != null && StageManager.Instance.ActiveStagePrefab != null
+            ? StageManager.Instance.ActiveStagePrefab.name
+            : "default";
+
+    private string ScoreScope => $"{DifficultyKey}_{StageKey}";
+
     private void LoadSavedScores()
     {
-        highScore = PlayerPrefs.GetInt(HighScorePrefix + DifficultyKey, 0);
-        bestTime = PlayerPrefs.GetFloat(BestTimePrefix + DifficultyKey, 0f);
+        highScore = PlayerPrefs.GetInt(HighScorePrefix + ScoreScope, 0);
+        bestTime = PlayerPrefs.GetFloat(BestTimePrefix + ScoreScope, 0f);
         OnScoreChanged?.Invoke(this);
     }
 
@@ -171,7 +178,7 @@ public class ScoringSystem : MonoBehaviour
         if (bestTime <= 0f || elapsed < bestTime)
         {
             bestTime = elapsed;
-            PlayerPrefs.SetFloat(BestTimePrefix + DifficultyKey, bestTime);
+            PlayerPrefs.SetFloat(BestTimePrefix + ScoreScope, bestTime);
             PlayerPrefs.Save();
         }
     }
@@ -181,7 +188,7 @@ public class ScoringSystem : MonoBehaviour
         if (score > highScore)
         {
             highScore = score;
-            PlayerPrefs.SetInt(HighScorePrefix + DifficultyKey, highScore);
+            PlayerPrefs.SetInt(HighScorePrefix + ScoreScope, highScore);
             PlayerPrefs.Save();
         }
     }
