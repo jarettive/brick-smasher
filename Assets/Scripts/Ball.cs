@@ -208,6 +208,11 @@ public class Ball : StageEntity
         PlayerController.OnSmashTriggered -= Smash;
     }
 
+    private void OnDestroy()
+    {
+        OnBallLost?.Invoke();
+    }
+
     private void Update()
     {
         if (!isActive)
@@ -264,7 +269,6 @@ public class Ball : StageEntity
                 if (Time.time - spawnTime < BlastZoneImmunityDuration)
                     continue;
 
-                OnBallLost?.Invoke();
                 Destroy(gameObject);
                 return;
             }
