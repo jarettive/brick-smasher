@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     private Difficulty difficulty;
 
     public static event Action OnGameStarted;
+    public static event Action OnDifficultyChanged;
 
     public static Difficulty Difficulty => Instance != null ? Instance.difficulty : null;
 
@@ -95,7 +96,11 @@ public class GameManager : MonoBehaviour
 
     public void SetDifficulty(Difficulty newDifficulty)
     {
+        if (difficulty == newDifficulty)
+            return;
+
         difficulty = newDifficulty;
+        OnDifficultyChanged?.Invoke();
     }
 
     public void StartGame()

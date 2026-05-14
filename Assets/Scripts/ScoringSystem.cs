@@ -74,19 +74,25 @@ public class ScoringSystem : MonoBehaviour
     private void OnEnable()
     {
         GameManager.OnGameStarted += HandleGameStarted;
+        GameManager.OnDifficultyChanged += LoadSavedScores;
+        StageManager.OnActiveStageChanged += HandleActiveStageChanged;
         Brick.OnBrickSpawned += HandleBrickSpawned;
         Brick.OnBrickDestroy += HandleBrickDestroy;
         Ball.OnBallLost += HandleBallLost;
-        OnScoreChanged?.Invoke(this);
+        LoadSavedScores();
     }
 
     private void OnDisable()
     {
         GameManager.OnGameStarted -= HandleGameStarted;
+        GameManager.OnDifficultyChanged -= LoadSavedScores;
+        StageManager.OnActiveStageChanged -= HandleActiveStageChanged;
         Brick.OnBrickSpawned -= HandleBrickSpawned;
         Brick.OnBrickDestroy -= HandleBrickDestroy;
         Ball.OnBallLost -= HandleBallLost;
     }
+
+    private void HandleActiveStageChanged(Stage _) => LoadSavedScores();
 
     private void HandleGameStarted()
     {
